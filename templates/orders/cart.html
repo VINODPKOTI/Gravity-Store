@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold text-zinc-900 mb-6">Shopping Cart</h2>
+
+    {% if cart.items.all %}
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Cart Items -->
+        <div class="flex-grow space-y-4">
+            {% for item in cart.items.all %}
+            <div class="bg-white p-4 rounded-xl border border-zinc-200 shadow-sm flex gap-4 items-start">
+                <div class="w-24 h-24 bg-zinc-100 rounded-lg overflow-hidden flex-shrink-0 border border-zinc-200">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"
+                        class="w-full h-full object-cover object-center">
+                    {% else %}
+                    <img src="https://placehold.co/200x200?text={{ item.product.title|urlencode }}"
+                        alt="{{ item.product.title }}" class="w-full h-full object-cover object-center opacity-80">
+                    {% endif %}
+                </div>
+
+                <div class="flex-grow min-w-0">
+                    <div class="flex justify-between items-start gap-4">
+                        <div>
+                            <h3 class="font-medium text-zinc-900 hover:text-zinc-700 truncate">
+                                <a href="{% url 'products:product_detail' item.product.pk %}">{{ item.product.title
+                                    }}</a>
+                            </h3>
+                            <p class="text-sm text-zinc-500 mt-1">
+                                {{ item.sku.sku_code }}
+                                <span class="text-zinc-400">|</span>
+                                {% for key, val in item.sku.attributes.items %}
+                                {{ key }}: {{ val }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        <p class="font-bold text-lg text-zinc-900">${{ item.total_price }}</p>
+                    </div>
+
+                    <div class="mt-4 flex items-center gap-4">
+                        <form action="{% url 'orders:update_cart' item.pk %}" method="post"
+                            class="flex items-center gap-2">
+                            {% csrf_token %}
+                            <label for="qty-{{ item.pk }}" class="text-sm text-zinc-600">Qty:</label>
+                            <select name="quantity" id="qty-{{ item.pk }}" onchange="this.form.submit()"
+                                class="block w-20 rounded-md border-zinc-300 py-1.5 text-sm focus:border-zinc-900 focus:ring-zinc-900">
+                                {% for i in "123456789"|make_list %}
+                                <option value="{{ i }}" {% if item.quantity==i|add:"0" %}selected{% endif %}>{{ i }}
+                                </option>
+                                {% endfor %}
+                                <option value="0">0 (Delete)</option>
+                            </select>
+                        </form>
+                        <div class="h-4 w-px bg-zinc-200"></div>
+                        <a href="{% url 'orders:remove_from_cart' item.pk %}"
+                            class="text-sm font-medium text-red-600 hover:text-red-500">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Summary -->
+        <div class="lg:w-80 flex-shrink-0">
+            <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm sticky top-24">
+                <h3 class="text-lg font-bold text-zinc-900 mb-4">Order Summary</h3>
+
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-zinc-600">Subtotal ({{ cart.total_items }} items):</span>
+                    <span class="font-bold text-xl text-zinc-900">${{ cart.total_price }}</span>
+                </div>
+
+                <p class="text-xs text-zinc-500 mb-6">Shipping and taxes calculated at checkout.</p>
+
+                <a href="{% url 'orders:checkout' %}"
+                    class="block w-full text-center rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900">
+                    Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-20 bg-zinc-50 rounded-xl border border-zinc-200 border-dashed">
+        <div class="mx-auto h-12 w-12 text-zinc-400 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-12 h-12">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+            </svg>
+        </div>
+        <h3 class="mt-2 text-sm font-semibold text-zinc-900">Your cart is empty</h3>
+        <p class="mt-1 text-sm text-zinc-500">Start adding items to your cart to see them here.</p>
+        <div class="mt-6">
+            <a href="{% url 'products:product_list' %}"
+                class="inline-flex items-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

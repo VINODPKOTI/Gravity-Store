@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Delivery Dashboard - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold text-zinc-900 mb-6">Delivery Dashboard</h2>
+
+    {% if shipments %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for shipment in shipments %}
+        <div
+            class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-lg text-zinc-900">Shipment #{{ shipment.id }}</h3>
+                        <p class="text-sm text-zinc-500">Order #{{ shipment.order.id }}</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium 
+                        {% if shipment.status == 'DELIVERED' %}bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20
+                        {% elif shipment.status == 'SHIPPED' %}bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20
+                        {% else %}bg-yellow-50 text-yellow-800 ring-1 ring-inset ring-yellow-600/20{% endif %}">
+                        {{ shipment.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="space-y-2 text-sm">
+                    <div>
+                        <span class="font-medium text-zinc-900">Seller:</span>
+                        <span class="text-zinc-600">{{ shipment.seller.business_name }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-zinc-900">Address:</span>
+                        <p class="text-zinc-600 mt-1 line-clamp-2">{{ shipment.order.shipping_address }}</p>
+                    </div>
+                </div>
+
+                <a href="{% url 'delivery:shipment_detail' shipment.pk %}"
+                    class="block w-full text-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow hover:bg-zinc-800 transition-colors">
+                    View Details
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20 bg-zinc-50 rounded-xl border border-zinc-200 border-dashed">
+        <p class="text-zinc-500">No shipments assigned or pending.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

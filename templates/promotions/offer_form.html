@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin-top: 30px;">
+    <div class="card">
+        <h2>{{ title }}</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: grey; display: block;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <p style="color: red;">{{ field.errors }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Save Offer</button>
+            <a href="{% url 'promotions:offer_list' %}" style="margin-left: 10px;">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

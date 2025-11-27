@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-bold text-zinc-900">Platform Admin Dashboard</h2>
+        <a href="{% url 'promotions:offer_list' %}"
+            class="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+            Manage Offers
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
+            <h3 class="text-sm font-medium text-zinc-500">Total Sales</h3>
+            <p class="mt-2 text-2xl font-bold text-green-600">${{ total_sales }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
+            <h3 class="text-sm font-medium text-zinc-500">Total Orders</h3>
+            <p class="mt-2 text-2xl font-bold text-zinc-900">{{ total_orders }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
+            <h3 class="text-sm font-medium text-zinc-500">Total Users</h3>
+            <p class="mt-2 text-2xl font-bold text-zinc-900">{{ total_users }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
+            <h3 class="text-sm font-medium text-zinc-500">Total Products</h3>
+            <p class="mt-2 text-2xl font-bold text-zinc-900">{{ total_products }}</p>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-zinc-200">
+            <h3 class="font-bold text-zinc-900">Recent Orders</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs text-zinc-500 uppercase bg-zinc-50 border-b border-zinc-200">
+                    <tr>
+                        <th class="px-6 py-3 font-medium">Order ID</th>
+                        <th class="px-6 py-3 font-medium">User</th>
+                        <th class="px-6 py-3 font-medium">Amount</th>
+                        <th class="px-6 py-3 font-medium">Status</th>
+                        <th class="px-6 py-3 font-medium">Date</th>
+                        <th class="px-6 py-3 font-medium">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-200">
+                    {% for order in recent_orders %}
+                    <tr class="hover:bg-zinc-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-zinc-900">#{{ order.id }}</td>
+                        <td class="px-6 py-4 text-zinc-600">{{ order.user.username }}</td>
+                        <td class="px-6 py-4 text-zinc-900 font-medium">${{ order.total_amount }}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium 
+                                {% if order.status == 'PAID' %}bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20
+                                {% elif order.status == 'PENDING' %}bg-yellow-50 text-yellow-800 ring-1 ring-inset ring-yellow-600/20
+                                {% else %}bg-zinc-100 text-zinc-800 ring-1 ring-inset ring-zinc-500/10{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-zinc-500">{{ order.created_at|date:"M d, Y" }}</td>
+                        <td class="px-6 py-4">
+                            <a href="{% url 'orders:order_detail' order.id %}"
+                                class="text-zinc-900 hover:text-zinc-600 font-medium hover:underline">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-zinc-500">No orders found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

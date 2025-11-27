@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Placed - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 50px; text-align: center;">
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+        <h2 style="color: green;">Order Placed Successfully!</h2>
+        <p>Thank you for shopping with us.</p>
+        <p>Your order has been confirmed and will be shipped soon.</p>
+        <a href="{% url 'core:home' %}" class="btn btn-primary" style="margin-top: 20px;">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}

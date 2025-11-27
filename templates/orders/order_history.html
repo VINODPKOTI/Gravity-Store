@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold text-zinc-900 mb-8">My Orders</h2>
+
+    {% if orders %}
+    <div class="space-y-6">
+        {% for order in orders %}
+        <div class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+            <div
+                class="bg-zinc-50 px-6 py-4 border-b border-zinc-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-zinc-600">
+                    <div>
+                        <span class="block text-xs font-medium uppercase text-zinc-500">Order Placed</span>
+                        <span class="font-medium text-zinc-900">{{ order.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium uppercase text-zinc-500">Total</span>
+                        <span class="font-medium text-zinc-900">${{ order.total_amount }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium uppercase text-zinc-500">Order #</span>
+                        <span class="font-medium text-zinc-900">{{ order.id }}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium 
+                        {% if order.status == 'PAID' %}bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20
+                        {% elif order.status == 'PENDING' %}bg-yellow-50 text-yellow-800 ring-1 ring-inset ring-yellow-600/20
+                        {% else %}bg-zinc-100 text-zinc-800 ring-1 ring-inset ring-zinc-500/10{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                    <a href="{% url 'orders:order_detail' order.id %}"
+                        class="text-sm font-medium text-zinc-900 hover:underline">
+                        View Details
+                    </a>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div class="flex items-center gap-4">
+                    <div class="flex -space-x-2 overflow-hidden">
+                        {% for item in order.items.all|slice:":3" %}
+                        {% if item.product.image %}
+                        <img class="inline-block h-12 w-12 rounded-full ring-2 ring-white object-cover"
+                            src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+                        {% else %}
+                        <div
+                            class="inline-block h-12 w-12 rounded-full ring-2 ring-white bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-400">
+                            {{ item.product.title|slice:":1" }}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% if order.items.count > 3 %}
+                        <div
+                            class="inline-block h-12 w-12 rounded-full ring-2 ring-white bg-zinc-100 flex items-center justify-center text-xs font-medium text-zinc-500">
+                            +{{ order.items.count|add:"-3" }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-zinc-500">
+                        {{ order.items.count }} item{% if order.items.count != 1 %}s{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20 bg-zinc-50 rounded-xl border border-zinc-200 border-dashed">
+        <p class="text-zinc-500 mb-4">You haven't placed any orders yet.</p>
+        <a href="{% url 'products:product_list' %}"
+            class="inline-flex items-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-zinc-800">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

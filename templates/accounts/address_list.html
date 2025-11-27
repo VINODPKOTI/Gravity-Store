@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}My Addresses - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>My Addresses</h2>
+        <a href="{% url 'accounts:address_add' %}" class="btn btn-primary">Add New Address</a>
+    </div>
+
+    <div class="grid">
+        {% for address in addresses %}
+        <div class="card" style="text-align: left;">
+            <h3>{{ address.full_name }}</h3>
+            <p>{{ address.street_address }}</p>
+            <p>{{ address.city }}, {{ address.state }} - {{ address.postal_code }}</p>
+            <p>{{ address.country }}</p>
+            <p>Phone: {{ address.phone_number }}</p>
+            {% if address.is_default %}
+            <span style="background: #eee; padding: 2px 5px; border-radius: 3px; font-size: 0.8rem;">Default</span>
+            {% endif %}
+            <div style="margin-top: 10px;">
+                <a href="{% url 'accounts:address_edit' address.pk %}" style="color: blue; margin-right: 10px;">Edit</a>
+                <a href="{% url 'accounts:address_delete' address.pk %}" style="color: red;">Delete</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>No addresses found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

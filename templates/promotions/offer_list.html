@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Offers - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Manage Offers</h2>
+        <a href="{% url 'promotions:offer_add' %}" class="btn btn-primary">Create New Offer</a>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #eee;">
+                <th style="padding: 10px; text-align: left;">Name</th>
+                <th style="padding: 10px; text-align: left;">Discount</th>
+                <th style="padding: 10px; text-align: left;">Start Date</th>
+                <th style="padding: 10px; text-align: left;">End Date</th>
+                <th style="padding: 10px; text-align: left;">Status</th>
+                <th style="padding: 10px; text-align: left;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for offer in offers %}
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 10px;">{{ offer.name }}</td>
+                <td style="padding: 10px;">{{ offer.discount_percent }}%</td>
+                <td style="padding: 10px;">{{ offer.start_date }}</td>
+                <td style="padding: 10px;">{{ offer.end_date }}</td>
+                <td style="padding: 10px;">{% if offer.is_active %}Active{% else %}Inactive{% endif %}</td>
+                <td style="padding: 10px;">
+                    <a href="{% url 'promotions:offer_edit' offer.pk %}" style="color: blue;">Edit</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="padding: 20px; text-align: center;">No offers found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
