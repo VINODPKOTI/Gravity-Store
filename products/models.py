@@ -6,6 +6,7 @@ class Category(MPTTModel):
     name = models.CharField(max_length=100)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     slug = models.SlugField(unique=True)
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
 
     class MPTTMeta:
         order_insertion_by = ['name']

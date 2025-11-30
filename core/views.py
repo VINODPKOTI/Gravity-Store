@@ -5,8 +5,16 @@ from accounts.models import User
 from orders.models import Order
 from products.models import Product
 
+from .models import Banner
+from products.models import Category
+
 def home(request):
-    return render(request, 'core/home.html')
+    banners = Banner.objects.filter(is_active=True).order_by('-created_at')
+    categories = Category.objects.root_nodes()
+    return render(request, 'core/home.html', {
+        'banners': banners,
+        'categories': categories
+    })
 
 @login_required
 def admin_dashboard(request):

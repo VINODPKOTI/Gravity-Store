@@ -24,14 +24,14 @@
                 <h1 class="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">{{ product.title }}</h1>
                 <div class="mt-4 flex items-center gap-4">
                     {% if product.get_active_offer %}
-                    <p class="text-3xl font-bold text-zinc-900">${{ product.discounted_price }}</p>
-                    <p class="text-xl text-zinc-500 line-through">${{ product.base_price }}</p>
+                    <p class="text-3xl font-bold text-zinc-900">₹{{ product.discounted_price }}</p>
+                    <p class="text-xl text-zinc-500 line-through">₹{{ product.base_price }}</p>
                     <span
                         class="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
                         {{ product.get_active_offer.discount_percent }}% OFF
                     </span>
                     {% else %}
-                    <p class="text-3xl font-bold text-zinc-900">${{ product.base_price }}</p>
+                    <p class="text-3xl font-bold text-zinc-900">₹{{ product.base_price }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -50,7 +50,7 @@
                         class="block w-full rounded-md border-zinc-300 py-3 pl-3 pr-10 text-base focus:border-zinc-900 focus:outline-none focus:ring-zinc-900 sm:text-sm border">
                         {% for sku in skus %}
                         <option value="{{ sku.id }}">
-                            {{ sku.sku_code }} - ${{ sku.price }} ({% for key, val in sku.attributes.items %}{{ key }}:
+                            {{ sku.sku_code }} - ₹{{ sku.price }} ({% for key, val in sku.attributes.items %}{{ key }}:
                             {{ val }}{% if not forloop.last %}, {% endif %}{% endfor %}){% if sku.stock <= 0 %} (Out of
                                 Stock){% endif %} </option>
                                 {% empty %}
@@ -83,8 +83,7 @@
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                     </svg>
-                    <span>Sold by <span class="font-medium text-zinc-900">{{ product.seller.business_name
-                            }}</span></span>
+                    <span>Sold by <span class="font-medium text-zinc-900">{{ product.seller.business_name }}</span></span>
                 </div>
             </div>
         </div>

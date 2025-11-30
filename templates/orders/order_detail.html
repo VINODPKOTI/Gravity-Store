@@ -56,7 +56,7 @@
                                 <div class="flex justify-between text-base font-medium text-zinc-900">
                                     <h3><a href="{% url 'products:product_detail' item.product.pk %}"
                                             class="hover:underline">{{ item.product.title }}</a></h3>
-                                    <p class="ml-4">${{ item.price }}</p>
+                                    <p class="ml-4">₹{{ item.price }}</p>
                                 </div>
                                 <p class="mt-1 text-sm text-zinc-500">{{ item.sku.sku_code }}</p>
                             </div>
