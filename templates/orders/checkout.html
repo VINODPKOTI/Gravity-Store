@@ -16,24 +16,29 @@
                 <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-bold text-zinc-900">1. Select Delivery Address</h3>
-                        <a href="{% url 'accounts:address_add' %}"
-                            class="text-sm font-medium text-zinc-900 hover:underline">+ Add New</a>
+                        <button type="button" id="open-add-address-modal"
+                            class="text-sm font-medium text-zinc-900 hover:underline">+ Add New</button>
                     </div>
 
                     {% if addresses %}
-                    <div class="space-y-4">
+                    <div class="space-y-4" id="address-list">
                         {% for address in addresses %}
                         <label
-                            class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-zinc-300 transition-colors {% if address.is_default %}border-zinc-900 ring-1 ring-zinc-900{% else %}border-zinc-200{% endif %}">
-                            <input type="radio" name="address" value="{{ address.id }}" class="sr-only" {% if
-                                address.is_default %}checked{% endif %} required>
+                            class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-zinc-300 transition-colors {{ address.is_default|yesno:'border-zinc-900 ring-1 ring-zinc-900,border-zinc-200' }}">
+                            <input type="radio" name="address" value="{{ address.id }}" class="sr-only" {{
+                                address.is_default|yesno:"checked," }} required>
+
                             <span class="flex flex-1">
                                 <span class="flex flex-col">
                                     <span class="block text-sm font-medium text-zinc-900">{{ address.full_name }}</span>
-                                    <span class="mt-1 flex items-center text-sm text-zinc-500">{{ address.street_address
-                                        }}, {{ address.city }}, {{ address.state }} - {{ address.postal_code }}</span>
-                                    <span class="mt-6 text-sm font-medium text-zinc-900">Phone: {{ address.phone_number
-                                        }}</span>
+                                    <span class="mt-1 flex items-center text-sm text-zinc-500">
+                                        {{ address.street_address }}, {{ address.city }}, {{ address.state }} -
+                                        {{ address.postal_code }}
+                                    </span>
+
+                                    <span class="mt-6 text-sm font-medium text-zinc-900">
+                                        Phone: {{ address.phone_number }}
+                                    </span>
                                 </span>
                             </span>
                             <span class="pointer-events-none absolute -inset-px rounded-lg border-2"
@@ -46,12 +51,13 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="text-center py-8 bg-zinc-50 rounded-lg border border-zinc-200 border-dashed">
+                    <div id="no-address-div"
+                        class="text-center py-8 bg-zinc-50 rounded-lg border border-zinc-200 border-dashed">
                         <p class="text-zinc-500 mb-4">No addresses found.</p>
-                        <a href="{% url 'accounts:address_add' %}"
+                        <button type="button" id="open-add-address-modal-empty"
                             class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50">
                             Add Address
-                        </a>
+                        </button>
                     </div>
                     {% endif %}
                 </div>
@@ -113,4 +119,145 @@
         display: block;
     }
 </style>
+
+<!-- Add Address Modal -->
+<div id="add-address-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title"
+    role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" id="modal-backdrop">
+        </div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form action="{% url 'accounts:address_add' %}" method="post" id="add-address-form" class="p-6">
+                {% csrf_token %}
+                <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4" id="modal-title">Add New Address</h3>
+                <div class="space-y-4">
+                    {% for field in address_form %}
+                    <div>
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" id="cancel-add-address"
+                        class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">Cancel</button>
+                    <button type="submit"
+                        class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-zinc-900 text-base font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 sm:text-sm">Save
+                        Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('add-address-modal');
+        const openBtn = document.getElementById('open-add-address-modal');
+        const cancelBtn = document.getElementById('cancel-add-address');
+        const backdrop = document.getElementById('modal-backdrop');
+        const form = document.getElementById('add-address-form');
+        const addressList = document.getElementById('address-list');
+        const noAddressDiv = document.getElementById('no-address-div');
+
+        function toggleModal(show) {
+            if (show) {
+                modal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            } else {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        if (openBtn) openBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleModal(true);
+        });
+
+        // Also handle the button in "No addresses found" state
+        const openBtnEmpty = document.getElementById('open-add-address-modal-empty');
+        if (openBtnEmpty) openBtnEmpty.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleModal(true);
+        });
+
+        if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
+        if (backdrop) backdrop.addEventListener('click', () => toggleModal(false));
+
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnContent = submitBtn.innerHTML;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Saving...';
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                            toggleModal(false);
+                            form.reset();
+
+                            // Add new address to list
+                            const address = data.address;
+                            const newAddressHtml = `
+                        <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-zinc-300 transition-colors border-zinc-200">
+                            <input type="radio" name="address" value="${address.id}" class="sr-only" checked required>
+                            <span class="flex flex-1">
+                                
+                                <span class="flex flex-col">
+                                    <span class="block text-sm font-medium text-zinc-900">${address.full_name}</span>
+                                    <span class="mt-1 flex items-center text-sm text-zinc-500">${address.street_address}, ${address.city}, ${address.state} - ${address.postal_code}</span>
+                                    <span class="mt-6 text-sm font-medium text-zinc-900">Phone: ${address.phone_number}</span>
+                                </span>
+                            </span>
+                            <span class="pointer-events-none absolute -inset-px rounded-lg border-2" aria-hidden="true"></span>
+                            <span class="h-5 w-5 rounded-full border border-zinc-300 bg-white flex items-center justify-center ring-offset-2 ring-zinc-900 ui-checked:bg-zinc-900 ui-checked:border-transparent">
+                                <div class="h-2.5 w-2.5 rounded-full bg-zinc-900 hidden ui-checked:block"></div>
+                            </span>
+                        </label>
+                        `;
+
+                            if (addressList) {
+                                addressList.insertAdjacentHTML('afterbegin', newAddressHtml);
+                                // Uncheck others? Radio buttons handle themselves but visual style might need update if I was using JS for style. 
+                                // But here I rely on CSS :checked selector, so it should be fine.
+                            } else if (noAddressDiv) {
+                                // If list didn't exist (empty state), reload page or replace empty state
+                                window.location.reload();
+                            }
+                        } else {
+                            showToast('Error saving address', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Something went wrong', 'error');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnContent;
+                    });
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .forms import RegistrationForm, AddressForm
@@ -28,6 +29,25 @@ def address_add(request):
             address = form.save(commit=False)
             address.user = request.user
             address.save()
+            
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Address added successfully',
+                    'address': {
+                        'id': address.id,
+                        'full_name': address.full_name,
+                        'street_address': address.street_address,
+                        'city': address.city,
+                        'state': address.state,
+                        'postal_code': address.postal_code,
+                        'phone_number': address.phone_number
+                    }
+                })
+
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect('accounts:address_list')
     else:
         form = AddressForm()

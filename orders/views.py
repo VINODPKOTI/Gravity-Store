@@ -5,6 +5,7 @@ from .models import Cart, CartItem
 
 from django.contrib.auth.decorators import login_required
 from accounts.models import Address
+from accounts.forms import AddressForm
 from .models import Cart, CartItem, Order, OrderItem
 from delivery.models import Shipment
 
@@ -27,7 +28,8 @@ def checkout(request):
         return redirect('orders:view_cart')
         
     addresses = Address.objects.filter(user=request.user)
-    return render(request, 'orders/checkout.html', {'cart': cart, 'addresses': addresses})
+    address_form = AddressForm()
+    return render(request, 'orders/checkout.html', {'cart': cart, 'addresses': addresses, 'address_form': address_form})
 
 @login_required
 @require_POST
@@ -168,14 +170,16 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     return render(request, 'orders/order_detail.html', {'order': order})
 
+from django.http import JsonResponse
+
 @require_POST
 def add_to_cart(request, product_id):
     cart = _get_cart(request)
     product = get_object_or_404(Product, pk=product_id)
-    print(f"DEBUG: add_to_cart POST: {request.POST}")
+    
     sku_id = request.POST.get('sku')
-    print(f"DEBUG: sku_id: {sku_id}")
     quantity = int(request.POST.get('quantity', 1))
+    buy_now = request.POST.get('buy_now') == 'true'
     
     if not sku_id:
         # If no SKU selected, try to get the first available SKU
@@ -184,16 +188,41 @@ def add_to_cart(request, product_id):
             sku = first_sku
         else:
             # No SKUs available at all
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': 'Out of stock'})
             return redirect('products:product_detail', pk=product_id)
     else:
         sku = get_object_or_404(SKU, pk=sku_id, product=product)
     
     cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, sku=sku)
+    
     if not created:
-        cart_item.quantity += quantity
+        # Item already exists in cart
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True, 
+                'message': 'Already added to cart',
+                'cart_count': cart.total_items
+            })
+        # For non-AJAX requests (like Buy Now), we might still want to proceed to checkout
+        # or show a message. For Buy Now, if it's already there, just redirect.
+        if buy_now:
+            return redirect('orders:checkout')
+            
+        return redirect('orders:view_cart')
     else:
         cart_item.quantity = quantity
-    cart_item.save()
+        cart_item.save()
+    
+    if buy_now:
+        return redirect('orders:checkout')
+        
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True, 
+            'message': 'Added to cart',
+            'cart_count': cart.total_items
+        })
     
     return redirect('orders:view_cart')
 

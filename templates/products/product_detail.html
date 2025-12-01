@@ -41,7 +41,7 @@
             </div>
 
             <form action="{% url 'orders:add_to_cart' product.id %}" method="post"
-                class="space-y-6 pt-6 border-t border-zinc-200">
+                class="space-y-6 pt-6 border-t border-zinc-200 add-to-cart-form">
                 {% csrf_token %}
 
                 <div>
@@ -69,7 +69,12 @@
                     <button type="submit"
                         class="flex-1 flex items-center justify-center rounded-md border border-transparent bg-zinc-900 px-8 py-3 text-base font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         {% if not skus %}disabled{% endif %}>
-                        Add to Cart
+                        {% if not skus %}Out of Stock{% else %}Add to Cart{% endif %}
+                    </button>
+                    <button type="submit" name="buy_now" value="true"
+                        class="flex-1 flex items-center justify-center rounded-md border border-zinc-900 bg-white px-8 py-3 text-base font-medium text-zinc-900 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        {% if not skus %}disabled{% endif %}>
+                        {% if not skus %}Out of Stock{% else %}Buy Now{% endif %}
                     </button>
                     <button type="button"
                         class="flex items-center justify-center rounded-md border border-zinc-200 bg-white px-4 py-3 text-zinc-900 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2">
@@ -89,8 +94,11 @@
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                     </svg>
-                    <span>Sold by <span class="font-medium text-zinc-900">{{ product.seller.business_name
-                            }}</span></span>
+                    <span>Sold by
+                        <span class="font-medium text-zinc-900">
+                            {{ product.seller.business_name }}
+                        </span>
+                    </span>
                 </div>
             </div>
         </div>

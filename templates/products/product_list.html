@@ -96,10 +96,12 @@
                         </div>
                     </a>
                     <div class="mt-4 flex gap-2">
-                        <form action="{% url 'orders:add_to_cart' product.pk %}" method="post" class="flex-1">
+                        <form action="{% url 'orders:add_to_cart' product.pk %}" method="post"
+                            class="flex-1 add-to-cart-form">
                             {% csrf_token %}
                             <button type="submit"
-                                class="w-full inline-flex items-center justify-center h-9 rounded-md border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-900 hover:bg-zinc-50 transition-colors">
+                                class="w-full inline-flex items-center justify-center h-9 rounded-md border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-900 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                {% if not product.is_in_stock %}disabled{% endif %}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" class="mr-1">
@@ -109,11 +111,11 @@
                                         d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12">
                                     </path>
                                 </svg>
-                                Add to Cart
+                                {% if not product.is_in_stock %}Out of Stock{% else %}Add to Cart{% endif %}
                             </button>
                         </form>
                         <a href="{% url 'products:product_detail' product.pk %}"
-                            class="flex-1 inline-flex items-center justify-center h-9 rounded-md bg-zinc-900 px-3 text-xs font-medium text-white hover:bg-zinc-800 transition-colors">
+                            class="flex-1 inline-flex items-center justify-center h-9 rounded-md bg-zinc-900 px-3 text-xs font-medium text-white hover:bg-zinc-800 transition-colors {% if not product.is_in_stock %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
                             Buy Now
                         </a>
                     </div>

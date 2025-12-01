@@ -46,6 +46,10 @@ class Product(models.Model):
             return self.base_price - discount
         return self.base_price
 
+    @property
+    def is_in_stock(self):
+        return self.skus.filter(stock__gt=0).exists()
+
 class SKU(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='skus')
     sku_code = models.CharField(max_length=50, unique=True)

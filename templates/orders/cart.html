@@ -6,7 +6,7 @@
 <div class="container mx-auto px-4 py-8">
     <h2 class="text-2xl font-bold text-zinc-900 mb-6">Shopping Cart</h2>
 
-    {% if cart.items.all %}
+    {% if cart.items.all|length > 0 %}
     <div class="flex flex-col lg:flex-row gap-8">
         <!-- Cart Items -->
         <div class="flex-grow space-y-4">
@@ -26,8 +26,8 @@
                     <div class="flex justify-between items-start gap-4">
                         <div>
                             <h3 class="font-medium text-zinc-900 hover:text-zinc-700 truncate">
-                                <a href="{% url 'products:product_detail' item.product.pk %}">{{ item.product.title
-                                    }}</a>
+                                <a href="{% url 'products:product_detail' item.product.pk %}"> {{ item.product.title }}
+                                </a>
                             </h3>
                             <p class="text-sm text-zinc-500 mt-1">
                                 {{ item.sku.sku_code }}
@@ -48,13 +48,18 @@
                             <select name="quantity" id="qty-{{ item.pk }}" onchange="this.form.submit()"
                                 class="block w-20 rounded-md border-zinc-300 py-1.5 text-sm focus:border-zinc-900 focus:ring-zinc-900">
                                 {% for i in "123456789"|make_list %}
-                                <option value="{{ i }}" {% if item.quantity|stringformat:"s"==i %}selected{% endif %}>
-                                    {{ i }}
-                                </option>
-
+                                {% if item.quantity == i|add:0 %}
+                                <option value="{{ i }}" selected>{{ i }}</option>
+                                {% else %}
+                                <option value="{{ i }}">{{ i }}</option>
+                                {% endif %}
                                 {% endfor %}
+
                                 <option value="0">0 (Delete)</option>
+
                             </select>
+
+
                         </form>
                         <div class="h-4 w-px bg-zinc-200"></div>
                         <a href="{% url 'orders:remove_from_cart' item.pk %}"
