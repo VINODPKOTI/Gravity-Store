@@ -48,8 +48,10 @@
                             <select name="quantity" id="qty-{{ item.pk }}" onchange="this.form.submit()"
                                 class="block w-20 rounded-md border-zinc-300 py-1.5 text-sm focus:border-zinc-900 focus:ring-zinc-900">
                                 {% for i in "123456789"|make_list %}
-                                <option value="{{ i }}" {% if item.quantity==i|add:"0" %}selected{% endif %}>{{ i }}
+                                <option value="{{ i }}" {% if item.quantity|stringformat:"s"==i %}selected{% endif %}>
+                                    {{ i }}
                                 </option>
+
                                 {% endfor %}
                                 <option value="0">0 (Delete)</option>
                             </select>

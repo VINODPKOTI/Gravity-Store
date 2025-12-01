@@ -36,3 +36,12 @@ def admin_dashboard(request):
         'recent_orders': recent_orders,
     }
     return render(request, 'core/admin_dashboard.html', context)
+
+def terms(request):
+    return render(request, 'core/terms.html')
+
+def privacy(request):
+    return render(request, 'core/privacy.html')
+
+def contact(request):
+    return render(request, 'core/contact.html')

@@ -59,6 +59,12 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="quantity" class="block text-sm font-medium text-zinc-900 mb-2">Quantity</label>
+                    <input type="number" name="quantity" id="quantity" min="1" value="1"
+                        class="block w-full md:w-32 rounded-md border-zinc-300 py-3 pl-3 text-base focus:border-zinc-900 focus:outline-none focus:ring-zinc-900 sm:text-sm border">
+                </div>
+
                 <div class="flex gap-4">
                     <button type="submit"
                         class="flex-1 flex items-center justify-center rounded-md border border-transparent bg-zinc-900 px-8 py-3 text-base font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -83,7 +89,8 @@
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                     </svg>
-                    <span>Sold by <span class="font-medium text-zinc-900">{{ product.seller.business_name }}</span></span>
+                    <span>Sold by <span class="font-medium text-zinc-900">{{ product.seller.business_name
+                            }}</span></span>
                 </div>
             </div>
         </div>

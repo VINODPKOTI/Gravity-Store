@@ -204,9 +204,9 @@
         <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <p class="text-sm text-zinc-500">&copy; 2025 Aaramba. All rights reserved.</p>
             <div class="flex gap-4">
-                <a href="#" class="text-sm text-zinc-500 hover:text-zinc-900">Terms</a>
-                <a href="#" class="text-sm text-zinc-500 hover:text-zinc-900">Privacy</a>
-                <a href="#" class="text-sm text-zinc-500 hover:text-zinc-900">Contact</a>
+                <a href="{% url 'core:terms' %}" class="text-sm text-zinc-500 hover:text-zinc-900">Terms</a>
+                <a href="{% url 'core:privacy' %}" class="text-sm text-zinc-500 hover:text-zinc-900">Privacy</a>
+                <a href="{% url 'core:contact' %}" class="text-sm text-zinc-500 hover:text-zinc-900">Contact</a>
             </div>
         </div>
     </footer>

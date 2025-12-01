@@ -172,10 +172,21 @@ def order_detail(request, order_id):
 def add_to_cart(request, product_id):
     cart = _get_cart(request)
     product = get_object_or_404(Product, pk=product_id)
+    print(f"DEBUG: add_to_cart POST: {request.POST}")
     sku_id = request.POST.get('sku')
+    print(f"DEBUG: sku_id: {sku_id}")
     quantity = int(request.POST.get('quantity', 1))
     
-    sku = get_object_or_404(SKU, pk=sku_id, product=product)
+    if not sku_id:
+        # If no SKU selected, try to get the first available SKU
+        first_sku = product.skus.filter(stock__gt=0).first()
+        if first_sku:
+            sku = first_sku
+        else:
+            # No SKUs available at all
+            return redirect('products:product_detail', pk=product_id)
+    else:
+        sku = get_object_or_404(SKU, pk=sku_id, product=product)
     
     cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, sku=sku)
     if not created:
