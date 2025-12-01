@@ -50,6 +50,25 @@
     </div>
 
     {% if banners|length > 1 %}
+    <!-- Previous Button -->
+    <button onclick="prevBanner()"
+        class="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-zinc-900 rounded-full p-3 shadow-lg transition-all hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+
+    <!-- Next Button -->
+    <button onclick="nextBanner()"
+        class="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-zinc-900 rounded-full p-3 shadow-lg transition-all hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+    </button>
+
+    <!-- Dot Indicators -->
     <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-30">
         {% for banner in banners %}
         <button
@@ -79,10 +98,19 @@
         currentBanner = index;
     }
 
+    function nextBanner() {
+        let next = (currentBanner + 1) % totalBanners;
+        showBanner(next);
+    }
+
+    function prevBanner() {
+        let prev = (currentBanner - 1 + totalBanners) % totalBanners;
+        showBanner(prev);
+    }
+
     if (totalBanners > 1) {
         setInterval(() => {
-            let next = (currentBanner + 1) % totalBanners;
-            showBanner(next);
+            nextBanner();
         }, 5000);
     }
 </script>

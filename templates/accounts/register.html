@@ -40,7 +40,7 @@
                 <div>
                     <label for="{{ form.username.id_for_label }}"
                         class="block text-sm font-medium text-zinc-700">Username</label>
-                    <div class="mt-1">
+                    <div class="mt-1 border border-zinc-200 p-2 rounded-md">
                         {{ form.username }}
                     </div>
                     {% if form.username.errors %}
@@ -52,7 +52,7 @@
                 <div>
                     <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-zinc-700">Email
                         Address</label>
-                    <div class="mt-1">
+                    <div class="mt-1 border border-zinc-200 p-2 rounded-md">
                         {{ form.email }}
                     </div>
                     {% if form.email.errors %}
@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Role -->
-                <div>
+                <!-- <div>
                     <label for="{{ form.role.id_for_label }}" class="block text-sm font-medium text-zinc-700">I am
                         a...</label>
                     <div class="mt-1">
@@ -70,7 +70,7 @@
                     {% if form.role.errors %}
                     <p class="mt-2 text-sm text-red-600">{{ form.role.errors.0 }}</p>
                     {% endif %}
-                </div>
+                </div> -->
 
                 <!-- Phone -->
                 <div>

@@ -160,6 +160,8 @@
 
                 <a href="{% url 'orders:order_history' %}"
                     class="text-sm font-medium hover:text-primary transition-colors">Orders</a>
+                <a href="{% url 'accounts:profile' %}"
+                    class="text-sm font-medium hover:text-primary transition-colors">Profile</a>
 
                 <div class="flex items-center gap-4 ml-2">
                     <span class="text-sm text-zinc-500">Hi, {{ user.username }}</span>
@@ -173,7 +175,7 @@
                 <a href="{% url 'accounts:login' %}"
                     class="text-sm font-medium hover:text-primary transition-colors">Login</a>
                 <a href="{% url 'accounts:register' %}"
-                    class="btn  inline-flex h-9 items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50">
+                    class="text-sm font-medium hover:text-primary transition-colors">
                     Get Started
                 </a>
                 {% endif %}
@@ -259,6 +261,8 @@
                     {% endif %}
                     <a href="{% url 'orders:order_history' %}"
                         class="block py-2 text-lg font-medium text-zinc-900">Orders</a>
+                    <a href="{% url 'accounts:profile' %}"
+                        class="block py-2 text-lg font-medium text-zinc-900">Profile</a>
                     <form action="{% url 'accounts:logout' %}" method="post" class="mt-2">
                         {% csrf_token %}
                         <button type="submit" class="text-red-600 font-medium w-full text-left">Logout</button>

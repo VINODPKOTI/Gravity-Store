@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-zinc-900 to-zinc-700 px-6 py-8 text-white">
+            <h1 class="text-3xl font-bold">Profile Settings</h1>
+            <p class="text-zinc-300 mt-2">Manage your account information</p>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="p-6">
+            <!-- Success Message -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="mb-6 rounded-lg bg-green-50 p-4 border border-green-200">
+                <div class="flex">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-green-600 mr-3">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span class="text-sm font-medium text-green-800">{{ message }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- User Info Card -->
+            <div class="mb-6 p-4 bg-zinc-50 rounded-lg border border-zinc-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-zinc-500">Account Type</p>
+                        <p class="text-lg font-semibold text-zinc-900">{{ user.get_role_display }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-zinc-500">Email Status</p>
+                        <p
+                            class="text-lg font-semibold {% if user.is_verified %}text-green-600{% else %}text-zinc-500{% endif %}">
+                            {% if user.is_verified %}
+                            <span class="inline-flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Verified
+                            </span>
+                            {% else %}
+                            Not Verified
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Form -->
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- First Name -->
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}"
+                            class="block text-sm font-medium text-zinc-700 mb-2">
+                            First Name
+                        </label>
+                        {{ form.first_name }}
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}"
+                            class="block text-sm font-medium text-zinc-700 mb-2">
+                            Last Name
+                        </label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-zinc-700 mb-2">
+                        Username <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-zinc-700 mb-2">
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-zinc-700 mb-2">
+                        Phone Number
+                    </label>
+                    {{ form.phone }}
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-4 border-t border-zinc-200">
+                    <a href="{% url 'core:home' %}" class="text-sm font-medium text-zinc-600 hover:text-zinc-900">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center justify-center rounded-md bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 transition-colors">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,8 +3,26 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User, Address
 
 class RegistrationForm(UserCreationForm):
-    role = forms.ChoiceField(choices=User.Role.choices, widget=forms.Select(attrs={
-        'class': 'flex h-10 w-full items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+    phone = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={
+        'class': 'flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+    }))
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'phone')
+
+class UserProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={
+        'class': 'flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+    }))
+    last_name = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={
+        'class': 'flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+    }))
+    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={
+        'class': 'flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+    }))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'class': 'flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
     }))
     phone = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={
         'class': 'flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
@@ -12,7 +30,7 @@ class RegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'role', 'phone')
+        fields = ('first_name', 'last_name', 'username', 'email', 'phone')
 
 class AddressForm(forms.ModelForm):
     class Meta:

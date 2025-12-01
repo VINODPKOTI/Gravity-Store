@@ -138,7 +138,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Authentication
 AUTH_USER_MODEL = 'accounts.User'
+
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailOrUsernameBackend',  # Custom backend for email/username login
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+]
 
 # Razorpay Config (Mock for now)
 RAZORPAY_KEY_ID = 'rzp_test_YOUR_KEY_ID'

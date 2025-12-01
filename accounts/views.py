@@ -9,7 +9,9 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.role = user.Role.CUSTOMER  # Default all new users to Customer
+            user.save()
             login(request, user)
             return redirect('core:home')
     else:
@@ -72,3 +74,19 @@ def address_delete(request, pk):
         address.delete()
         return redirect('accounts:address_list')
     return render(request, 'accounts/address_confirm_delete.html', {'address': address})
+
+@login_required
+def profile(request):
+    from .forms import UserProfileForm
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('accounts:profile')
+    else:
+        form = UserProfileForm(instance=request.user)
+    
+    return render(request, 'accounts/profile.html', {'form': form})
