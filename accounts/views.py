@@ -90,3 +90,101 @@ def profile(request):
         form = UserProfileForm(instance=request.user)
     
     return render(request, 'accounts/profile.html', {'form': form})
+
+def custom_login(request):
+    from django.contrib.auth import authenticate, login as auth_login
+    from django.contrib import messages
+    from orders.models import Cart, CartItem
+    from wishlist.models import Wishlist, WishlistItem
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # Get guest cart/wishlist before login
+            guest_cart_id = None
+            guest_wishlist_id = None
+            
+            if not request.user.is_authenticated:
+                session_id = request.session.get('cart_session_id')
+                if session_id:
+                    try:
+                        guest_cart = Cart.objects.get(session_id=session_id)
+                        guest_cart_id = guest_cart.id
+                    except Cart.DoesNotExist:
+                        pass
+                    
+                    try:
+                        guest_wishlist = Wishlist.objects.get(session_id=session_id)
+                        guest_wishlist_id = guest_wishlist.id
+                    except Wishlist.DoesNotExist:
+                        pass
+            
+            # Login the user
+            auth_login(request, user)
+            
+            # Merge guest cart into user cart
+            if guest_cart_id:
+                try:
+                    guest_cart = Cart.objects.get(id=guest_cart_id)
+                    user_cart, created = Cart.objects.get_or_create(user=user)
+                    
+                    for item in guest_cart.items.all():
+                        # Check if item already exists in user cart
+                        existing_item = CartItem.objects.filter(
+                            cart=user_cart,
+                            product=item.product,
+                            sku=item.sku
+                        ).first()
+                        
+                        if existing_item:
+                            # Update quantity
+                            existing_item.quantity += item.quantity
+                            existing_item.save()
+                        else:
+                            # Move item to user cart
+                            item.cart = user_cart
+                            item.save()
+                    
+                    # Delete guest cart
+                    guest_cart.delete()
+                except Cart.DoesNotExist:
+                    pass
+            
+            # Merge guest wishlist into user wishlist
+            if guest_wishlist_id:
+                try:
+                    guest_wishlist = Wishlist.objects.get(id=guest_wishlist_id)
+                    user_wishlist, created = Wishlist.objects.get_or_create(user=user)
+                    
+                    for item in guest_wishlist.items.all():
+                        # Check if item already exists in user wishlist
+                        existing_item = WishlistItem.objects.filter(
+                            wishlist=user_wishlist,
+                            product=item.product,
+                            sku=item.sku
+                        ).first()
+                        
+                        if not existing_item:
+                            # Move item to user wishlist
+                            item.wishlist = user_wishlist
+                            item.save()
+                        else:
+                            # Item already in wishlist, delete duplicate
+                            item.delete()
+                    
+                    # Delete guest wishlist
+                    guest_wishlist.delete()
+                except Wishlist.DoesNotExist:
+                    pass
+            
+            messages.success(request, f'Welcome back, {user.username}!')
+            next_url = request.GET.get('next', '/')
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'accounts/login.html')
+

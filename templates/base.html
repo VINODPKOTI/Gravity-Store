@@ -180,6 +180,21 @@
                 </a>
                 {% endif %}
 
+                <!-- Wishlist Icon -->
+                <a href="{% url 'wishlist:wishlist' %}"
+                    class="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-zinc-100 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-zinc-900">
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                    <span
+                        class="wishlist-badge absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white hidden">
+                        0
+                    </span>
+                </a>
+
                 <a href="{% url 'orders:view_cart' %}"
                     class="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-zinc-100 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -261,6 +276,9 @@
                     {% endif %}
                     <a href="{% url 'orders:order_history' %}"
                         class="block py-2 text-lg font-medium text-zinc-900">Orders</a>
+                    <a href="{% url 'wishlist:wishlist' %}"
+                        class="block py-2 text-lg font-medium text-zinc-900">Wishlist</a>
+
                     <a href="{% url 'accounts:profile' %}"
                         class="block py-2 text-lg font-medium text-zinc-900">Profile</a>
                     <form action="{% url 'accounts:logout' %}" method="post" class="mt-2">

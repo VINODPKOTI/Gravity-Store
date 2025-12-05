@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'delivery',
     'payments',
     'promotions',
+    'wishlist',
 ]
 
 MIDDLEWARE = [
@@ -146,6 +147,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default backend
 ]
 
-# Razorpay Config (Mock for now)
-RAZORPAY_KEY_ID = 'rzp_test_YOUR_KEY_ID'
-RAZORPAY_KEY_SECRET = 'YOUR_KEY_SECRET'
+# Razorpay Config (Test/Dummy credentials)
+RAZORPAY_KEY_ID = 'rzp_test_dummy123456789'
+RAZORPAY_KEY_SECRET = 'dummy_secret_key_for_testing'
+

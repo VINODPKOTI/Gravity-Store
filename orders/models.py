@@ -55,10 +55,15 @@ class Order(models.Model):
         PAID = 'PAID', 'Paid'
         FAILED = 'FAILED', 'Failed'
         CANCELLED = 'CANCELLED', 'Cancelled'
+    
+    class PaymentMethod(models.TextChoices):
+        RAZORPAY = 'RAZORPAY', 'Razorpay'
+        COD = 'COD', 'Cash on Delivery'
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     shipping_address = models.TextField() # Snapshot of address
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.RAZORPAY)
     payment_id = models.CharField(max_length=100, blank=True, null=True) # Razorpay Order ID
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)

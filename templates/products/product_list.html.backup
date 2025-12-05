@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if category %}{{ category.name }}{% else %}Shop{% endif %} - Aaramba
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 flex-shrink-0">
+        <div class="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm sticky top-24">
+            <h3 class="font-bold text-lg mb-4 text-zinc-900">Categories</h3>
+            <ul class="space-y-2">
+                <li>
+                    <a href="{% url 'products:product_list' %}"
+                        class="block text-sm {% if not category %}font-bold text-zinc-900{% else %}text-zinc-600 hover:text-zinc-900{% endif %} transition-colors">
+                        All Products
+                    </a>
+                </li>
+                {% for cat in categories %}
+                {% if cat.is_root_node %}
+                <li class="space-y-1">
+                    <a href="{% url 'products:product_list_by_category' cat.slug %}"
+                        class="block text-sm {% if category and category.id == cat.id %}font-bold text-zinc-900{% else %}text-zinc-600 hover:text-zinc-900{% endif %} transition-colors">
+                        {{ cat.name }}
+                    </a>
+                    {% if not cat.is_leaf_node %}
+                    <ul class="pl-4 space-y-1 border-l border-zinc-100 ml-1">
+                        {% for child in cat.get_children %}
+                        <li>
+                            <a href="{% url 'products:product_list_by_category' child.slug %}"
+                                class="block text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
+                                {{ child.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Product Grid -->
+    <div class="flex-grow">
+        <div class="mb-6">
+            {% if search_query %}
+            <h2 class="text-2xl font-bold text-zinc-900">Search Results for "{{ search_query }}"</h2>
+            {% elif category %}
+            <h2 class="text-2xl font-bold text-zinc-900">{{ category.name }}</h2>
+            {% else %}
+            <h2 class="text-2xl font-bold text-zinc-900">All Products</h2>
+            {% endif %}
+            <p class="text-zinc-500 text-sm mt-1">{{ products.count }} items found</p>
+        </div>
+
+        {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in products %}
+            <div
+                class="group block bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all hover:border-zinc-300">
+                <a href="{% url 'products:product_detail' product.pk %}">
+                    <div class="aspect-[4/3] bg-zinc-100 relative overflow-hidden">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.title }}"
+                            class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
+                        {% else %}
+                        <img src="https://placehold.co/600x400?text={{ product.title|urlencode }}"
+                            alt="{{ product.title }}" class="w-full h-full object-cover object-center opacity-80">
+                        {% endif %}
+
+                        {% if product.get_active_offer %}
+                        <div
+                            class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            {{ product.get_active_offer.discount_percent }}% OFF
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="p-4">
+                    <a href="{% url 'products:product_detail' product.pk %}">
+                        {% if product.category %}
+                        <p class="text-xs text-zinc-500 mb-1">{{ product.category.name }}</p>
+                        {% endif %}
+                        <h3 class="font-medium text-zinc-900 group-hover:text-zinc-700 truncate">{{ product.title }}
+                        </h3>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            {% if product.get_active_offer %}
+                            <span class="text-lg font-bold text-zinc-900">₹{{ product.discounted_price }}</span>
+                            <span class="text-sm text-zinc-500 line-through">₹{{ product.base_price }}</span>
+                            {% else %}
+                            <span class="text-lg font-bold text-zinc-900">₹{{ product.base_price }}</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                    <div class="mt-4 flex gap-2">
+                        <form action="{% url 'orders:add_to_cart' product.pk %}" method="post"
+                            class="flex-1 add-to-cart-form">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="w-full inline-flex items-center justify-center h-9 rounded-md border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-900 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                {% if not product.is_in_stock %}disabled{% endif %}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="mr-1">
+                                    <circle cx="8" cy="21" r="1"></circle>
+                                    <circle cx="19" cy="21" r="1"></circle>
+                                    <path
+                                        d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12">
+                                    </path>
+                                </svg>
+                                {% if not product.is_in_stock %}Out of Stock{% else %}Add to Cart{% endif %}
+                            </button>
+                        </form>
+                        <a href="{% url 'products:product_detail' product.pk %}"
+                            class="flex-1 inline-flex items-center justify-center h-9 rounded-md bg-zinc-900 px-3 text-xs font-medium text-white hover:bg-zinc-800 transition-colors {% if not product.is_in_stock %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
+                            Buy Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-20 bg-zinc-50 rounded-xl border border-zinc-200 border-dashed">
+            <p class="text-zinc-500">No products found.</p>
+            <a href="{% url 'products:product_list' %}"
+                class="text-sm font-medium text-zinc-900 hover:underline mt-2 inline-block">Clear Filters</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

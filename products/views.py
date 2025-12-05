@@ -15,17 +15,49 @@ def product_list(request, category_slug=None):
     if search_query:
         products = products.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
 
+    # Get wishlist items for checking
+    wishlist_product_ids = []
+    if request.user.is_authenticated:
+        from wishlist.models import Wishlist
+        wishlist = Wishlist.objects.filter(user=request.user).first()
+        if wishlist:
+            wishlist_product_ids = list(wishlist.items.values_list('product_id', flat=True))
+    else:
+        session_id = request.session.get('cart_session_id')
+        if session_id:
+            from wishlist.models import Wishlist
+            wishlist = Wishlist.objects.filter(session_id=session_id).first()
+            if wishlist:
+                wishlist_product_ids = list(wishlist.items.values_list('product_id', flat=True))
+
     return render(request, 'products/product_list.html', {
         'category': category,
         'categories': categories,
         'products': products,
-        'search_query': search_query
+        'search_query': search_query,
+        'wishlist_product_ids': wishlist_product_ids
     })
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk, is_active=True)
     skus = product.skus.filter(stock__gt=0)
-    return render(request, 'products/product_detail.html', {'product': product, 'skus': skus})
+    
+    # Check if in wishlist
+    in_wishlist = False
+    if request.user.is_authenticated:
+        from wishlist.models import Wishlist
+        wishlist = Wishlist.objects.filter(user=request.user).first()
+        if wishlist:
+            in_wishlist = wishlist.items.filter(product=product).exists()
+    else:
+        session_id = request.session.get('cart_session_id')
+        if session_id:
+            from wishlist.models import Wishlist
+            wishlist = Wishlist.objects.filter(session_id=session_id).first()
+            if wishlist:
+                in_wishlist = wishlist.items.filter(product=product).exists()
+
+    return render(request, 'products/product_detail.html', {'product': product, 'skus': skus, 'in_wishlist': in_wishlist})
 
 from django.http import JsonResponse
 
@@ -47,5 +79,4 @@ def product_search_suggestions(request):
             'price': product.discounted_price if product.get_active_offer() else product.base_price,
             'url': f"/products/{product.id}/" # Assuming standard URL structure, ideally use reverse() but simpler for JSON here
         })
-    
     return JsonResponse({'results': results})

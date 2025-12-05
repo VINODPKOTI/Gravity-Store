@@ -76,10 +76,13 @@
                         {% if not skus %}disabled{% endif %}>
                         {% if not skus %}Out of Stock{% else %}Buy Now{% endif %}
                     </button>
-                    <button type="button"
-                        class="flex items-center justify-center rounded-md border border-zinc-200 bg-white px-4 py-3 text-zinc-900 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2">
+                    <button type="button" id="add-to-wishlist-btn" data-product-id="{{ product.id }}"
+                        class="flex items-center justify-center rounded-md border border-zinc-200 bg-white px-4 py-3 text-zinc-900 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 transition-colors"
+                        title="Add to Wishlist">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="wishlist-heart"
+                            style="fill: {% if in_wishlist %}#ef4444{% else %}none{% endif %}; stroke: {% if in_wishlist %}#ef4444{% else %}currentColor{% endif %}; transition: all 0.3s;">
                             <path
                                 d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                         </svg>
@@ -104,4 +107,68 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const wishlistBtn = document.getElementById('add-to-wishlist-btn');
+        const skuSelect = document.getElementById('sku');
+
+        if (wishlistBtn) {
+            wishlistBtn.addEventListener('click', function () {
+                const productId = this.dataset.productId;
+                const selectedSku = skuSelect ? skuSelect.value : null;
+
+                // Create form data
+                const formData = new FormData();
+                if (selectedSku) {
+                    formData.append('sku', selectedSku);
+                }
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                // Disable button during request
+                wishlistBtn.disabled = true;
+                wishlistBtn.style.opacity = '0.6';
+
+                fetch(`/wishlist/add/${productId}/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (response.redirected) {
+                            // User not logged in, redirect to login
+                            window.location.href = response.url;
+                            return null;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data) {
+                            // Visual feedback - fill the heart
+                            const heart = wishlistBtn.querySelector('.wishlist-heart');
+                            heart.style.fill = '#ef4444'; // red-500
+                            heart.style.stroke = '#ef4444';
+
+                            // Show toast notification
+                            showToast(data.message, 'success');
+
+                            // Re-enable after short delay
+                            setTimeout(() => {
+                                wishlistBtn.disabled = false;
+                                wishlistBtn.style.opacity = '1';
+                            }, 1000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Something went wrong', 'error');
+                        wishlistBtn.disabled = false;
+                        wishlistBtn.style.opacity = '1';
+                    });
+            });
+        }
+    });
+</script>
 {% endblock %}

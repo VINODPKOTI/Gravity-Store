@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from products.models import Product, SKU
 from .models import Cart, CartItem
-
+from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from accounts.models import Address
 from accounts.forms import AddressForm
@@ -39,6 +39,8 @@ def place_order(request):
         return redirect('orders:view_cart')
 
     address_id = request.POST.get('address')
+    payment_method = request.POST.get('payment_method', 'RAZORPAY')
+    
     if not address_id:
         # Handle error: no address selected
         return redirect('orders:checkout')
@@ -51,6 +53,7 @@ def place_order(request):
         user=request.user,
         shipping_address=address_str,
         total_amount=cart.total_price,
+        payment_method=payment_method,
         status=Order.Status.PENDING
     )
 
@@ -83,8 +86,16 @@ def place_order(request):
     # Clear Cart
     cart.items.all().delete()
     
-    # Redirect to Payment (Placeholder for now)
-    return redirect('orders:payment', order_id=order.id)
+    # Redirect based on payment method
+    if payment_method == 'COD':
+        # For COD, mark as confirmed and redirect to success
+        order.status = Order.Status.PAID  # Or create a new status like CONFIRMED
+        order.save()
+        order.shipments.update(status=Shipment.Status.READY_TO_SHIP)
+        return redirect('orders:order_success')
+    else:
+        # Redirect to Payment (Razorpay)
+        return redirect('orders:payment', order_id=order.id)
 
 import razorpay
 from django.conf import settings
@@ -163,7 +174,8 @@ def order_failed(request):
 @login_required
 def order_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'orders/order_history.html', {'orders': orders})
+    total_spent = orders.aggregate(total=Sum('total_amount'))['total'] or 0
+    return render(request, 'orders/order_history.html', {'orders': orders, 'total_spent': total_spent})
 
 @login_required
 def order_detail(request, order_id):

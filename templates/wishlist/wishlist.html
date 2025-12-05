@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+
+{% block title %}My Wishlist - Aaramba{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-zinc-900">My Wishlist</h1>
+        <p class="text-zinc-500 mt-2">{{ wishlist.items.count }} item{{ wishlist.items.count|pluralize }}</p>
+    </div>
+
+    {% if wishlist.items.count > 0 %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for item in wishlist.items.all %}
+        <div
+            class="group relative bg-white rounded-xl border border-zinc-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+            <!-- Product Image -->
+            <div class="aspect-square bg-zinc-100 overflow-hidden relative">
+                <a href="{% url 'products:product_detail' item.product.id %}">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-zinc-400">
+                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    {% endif %}
+                </a>
+
+                <!-- Stock Badge -->
+                {% if item.sku %}
+                <div class="absolute top-3 left-3">
+                    {% if item.sku.stock > 0 %}
+                    <span class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-md shadow">
+                        In Stock
+                    </span>
+                    {% else %}
+                    <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-md shadow">
+                        Out of Stock
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Wishlist Badge -->
+                <div class="absolute top-3 right-3">
+                    <div class="bg-white rounded-full p-2 shadow-md">
+                        <svg class="w-5 h-5 text-red-500 fill-current" viewBox="0 0 24 24">
+                            <path
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="p-4">
+                <a href="{% url 'products:product_detail' item.product.id %}"
+                    class="block text-sm font-semibold text-zinc-900 hover:text-zinc-700 line-clamp-2 mb-2 transition-colors">
+                    {{ item.product.title }}
+                </a>
+
+                <!-- SKU Info -->
+                {% if item.sku %}
+                <p class="text-xs text-zinc-500 mb-2">
+                    {% if item.sku.color %}Color: {{ item.sku.color }}{% endif %}
+                    {% if item.sku.size %}{% if item.sku.color %}, {% endif %}Size: {{ item.sku.size }}{% endif %}
+                </p>
+                {% endif %}
+
+                <!-- Price -->
+                <div class="mb-4">
+                    {% if item.product.get_active_offer %}
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-xl font-bold text-zinc-900">₹{{ item.product.discounted_price|floatformat:0
+                            }}</span>
+                        <span class="text-sm text-zinc-500 line-through">₹{{ item.product.base_price|floatformat:0
+                            }}</span>
+                        <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">
+                            {{ item.product.get_active_offer.discount_percent }}% OFF
+                        </span>
+                    </div>
+                    {% else %}
+                    <span class="text-xl font-bold text-zinc-900">₹{{ item.product.base_price|floatformat:0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="space-y-2">
+                    <!-- Move to Cart Button -->
+                    {% if item.sku.stock > 0 %}
+                    <button onclick="moveToCart({{ item.id }}, this)"
+                        class="move-to-cart-btn w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span>Move to Cart</span>
+                    </button>
+                    {% else %}
+                    <!-- Disabled Button when Out of Stock -->
+                    <button disabled
+                        class="w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-200 cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-zinc-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span>Out of Stock</span>
+                    </button>
+                    {% endif %}
+                    <!-- View Product & Remove Buttons -->
+                    <div class="flex gap-2">
+                        <a href="{% url 'products:product_detail' item.product.id %}"
+                            class="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-zinc-900 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50 transition-all duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <span>View</span>
+                        </a>
+                        <button onclick="removeFromWishlist({{ item.id }}, this)"
+                            class="remove-btn rounded-lg border-2 border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty Wishlist State -->
+    <div class="text-center py-16">
+        <div class="mb-6">
+            <svg class="w-24 h-24 mx-auto text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-zinc-900 mb-2">Your Wishlist is Empty</h3>
+        <p class="text-zinc-500 mb-6">Save your favorite items to buy them later</p>
+        <a href="{% url 'products:product_list' %}"
+            class="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-all duration-200 transform hover:scale-[1.02]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Continue Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmation-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title"
+    role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-zinc-900 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true"
+            onclick="closeModal()"></div>
+
+        <!-- Modal panel -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div
+            class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div
+                        class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-zinc-900" id="modal-title">Remove from Wishlist
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-zinc-500">Are you sure you want to remove this item from your
+                                wishlist? This action cannot be undone.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-zinc-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" id="confirm-delete-btn"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Remove
+                </button>
+                <button type="button" onclick="closeModal()"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-zinc-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-zinc-700 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast"
+    class="fixed bottom-4 right-4 bg-zinc-900 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-32 transition-all duration-300 z-50 flex items-center gap-3">
+    <svg id="toast-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="toast-message">Action completed</span>
+</div>
+
+<script>
+    let itemToDeleteId = null;
+    let deleteButtonRef = null;
+
+    function openModal(itemId, button) {
+        itemToDeleteId = itemId;
+        deleteButtonRef = button;
+        document.getElementById('confirmation-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        itemToDeleteId = null;
+        deleteButtonRef = null;
+        document.getElementById('confirmation-modal').classList.add('hidden');
+    }
+
+    document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+        if (itemToDeleteId) {
+            const button = deleteButtonRef;
+
+            // Show loading state on the button that triggered the modal (optional, but good UX)
+            if (button) {
+                const originalHTML = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `
+                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                `;
+            }
+
+            // Redirect to remove URL
+            window.location.href = `/wishlist/remove/${itemToDeleteId}/`;
+        }
+        closeModal();
+    });
+
+    // Show toast notification
+    function showToast(message, isSuccess = true) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+
+        toastMessage.textContent = message;
+
+        // Update icon based on success/error
+        if (isSuccess) {
+            toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />';
+            toast.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-0 transition-all duration-300 z-50 flex items-center gap-3';
+        } else {
+            toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+            toast.className = 'fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-0 transition-all duration-300 z-50 flex items-center gap-3';
+        }
+
+        toast.style.transform = 'translateY(0)';
+
+        setTimeout(() => {
+            toast.style.transform = 'translateY(8rem)';
+        }, 3000);
+    }
+
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Move item to cart
+    function moveToCart(itemId, button) {
+        const originalHTML = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = `
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Moving...</span>
+        `;
+
+        fetch(`/wishlist/move-to-cart/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, true);
+
+                    // Update cart count in navbar if exists
+                    const cartCount = document.getElementById('cart-count');
+                    if (cartCount && data.cart_count) {
+                        cartCount.textContent = data.cart_count;
+                        cartCount.classList.remove('hidden');
+                    }
+
+                    // Remove the product card from DOM with animation
+                    const card = button.closest('.group');
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        card.remove();
+
+                        // Check if wishlist is now empty and reload if so
+                        const remainingItems = document.querySelectorAll('.group').length;
+                        if (remainingItems === 0) {
+                            location.reload();
+                        } else {
+                            // Update item count
+                            const countElement = document.querySelector('.text-zinc-500.mt-2');
+                            if (countElement && data.wishlist_count !== undefined) {
+                                countElement.textContent = `${data.wishlist_count} item${data.wishlist_count !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }, 300);
+                } else {
+                    showToast('Failed to move item to cart', false);
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred', false);
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            });
+    }
+
+    // Remove item from wishlist
+    function removeFromWishlist(itemId, button) {
+        openModal(itemId, button);
+    }
+</script>
+{% endblock %}

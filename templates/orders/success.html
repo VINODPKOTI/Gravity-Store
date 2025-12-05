@@ -1,14 +1,130 @@
 {% extends 'base.html' %}
 
-{% block title %}Order Placed - Aaramba{% endblock %}
+{% block title %}Order Success - Aaramba{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 50px; text-align: center;">
-    <div class="card" style="max-width: 500px; margin: 0 auto;">
-        <h2 style="color: green;">Order Placed Successfully!</h2>
-        <p>Thank you for shopping with us.</p>
-        <p>Your order has been confirmed and will be shipped soon.</p>
-        <a href="{% url 'core:home' %}" class="btn btn-primary" style="margin-top: 20px;">Continue Shopping</a>
+<div class="min-h-screen flex items-center justify-center px-4 py-16 bg-gradient-to-br from-green-50 to-zinc-50">
+    <div class="max-w-md w-full">
+        <!-- Success Animation Container -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <!-- Success Icon -->
+            <div class="mb-6 relative">
+                <div
+                    class="w-24 h-24 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-bounce-slow">
+                    <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <!-- Decorative circles -->
+                <div
+                    class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 w-32 h-32 bg-green-50 rounded-full -z-10 animate-pulse">
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <h1 class="text-3xl font-bold text-zinc-900 mb-2">Order Placed Successfully!</h1>
+            <p class="text-zinc-600 mb-6">
+                Thank you for shopping with Aaramba. Your order has been confirmed and will be processed soon.
+            </p>
+
+            <!-- Order Details Teaser -->
+            <div class="bg-zinc-50 rounded-xl p-4 mb-6 border border-zinc-200">
+                <div class="flex items-center justify-center gap-2 text-sm text-zinc-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>You will receive an order confirmation email shortly</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <a href="{% url 'orders:order_history' %}"
+                    class="block w-full rounded-lg bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
+                    View Order History
+                </a>
+                <a href="{% url 'core:home' %}"
+                    class="block w-full rounded-lg border border-zinc-300 px-6 py-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors">
+                    Continue Shopping
+                </a>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="mt-6 pt-6 border-t border-zinc-200">
+                <p class="text-xs text-zinc-500">
+                    Need help? <a href="#" class="text-zinc-900 hover:underline font-medium">Contact Support</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Delivery Info Cards -->
+        <div class="mt-6 grid grid-cols-3 gap-3">
+            <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+                <div class="text-2xl mb-1">🚚</div>
+                <p class="text-xs text-zinc-600 font-medium">Fast Delivery</p>
+            </div>
+            <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+                <div class="text-2xl mb-1">🔒</div>
+                <p class="text-xs text-zinc-600 font-medium">Secure Payment</p>
+            </div>
+            <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+                <div class="text-2xl mb-1">📦</div>
+                <p class="text-xs text-zinc-600 font-medium">Track Order</p>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    @keyframes bounce-slow {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .animate-bounce-slow {
+        animation: bounce-slow 2s ease-in-out infinite;
+    }
+</style>
+
+<!-- Confetti Animation Library -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script>
+    // Trigger confetti animation when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        // First burst
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+
+        // Second burst
+        setTimeout(() => {
+            confetti({
+                particleCount: 50,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 }
+            });
+        }, 200);
+
+        // Third burst
+        setTimeout(() => {
+            confetti({
+                particleCount: 50,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 }
+            });
+        }, 400);
+    });
+</script>
 {% endblock %}

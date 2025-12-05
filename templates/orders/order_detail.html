@@ -86,7 +86,13 @@
 
                     <div class="border-t border-zinc-100 pt-4">
                         <h4 class="text-sm font-medium text-zinc-900 mb-1">Payment Method</h4>
-                        <p class="text-sm text-zinc-600">Razorpay</p>
+                        <p class="text-sm text-zinc-600">
+                            {% if order.payment_method == 'COD' %}
+                            💵 Cash on Delivery
+                            {% else %}
+                            💳 Razorpay
+                            {% endif %}
+                        </p>
                     </div>
 
                     <div class="border-t border-zinc-100 pt-4 flex justify-between items-center">
