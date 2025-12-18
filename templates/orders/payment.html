@@ -1,69 +1,83 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Payment - Aaramba{% endblock %}
+{% block title %}Complete Payment - Aaramba{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-12 flex justify-center">
-    <div class="w-full max-w-md bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-zinc-100 bg-zinc-50/50">
-            <h2 class="text-xl font-bold text-zinc-900">Payment Details</h2>
-            <p class="text-sm text-zinc-500 mt-1">Order #{{ order.id }}</p>
+<div class="bg-zinc-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-xl w-full bg-white rounded-[3rem] border border-zinc-200 shadow-2xl overflow-hidden p-8 md:p-12">
+        <div class="text-center mb-8">
+            <div
+                class="w-20 h-20 bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl rotate-3">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                    </path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-black text-zinc-900 mb-2">COMPLETE PAYMENT</h1>
+            <p class="text-zinc-500 font-medium">Please do not refresh or close this page</p>
         </div>
 
-        <div class="p-6 space-y-6">
-            <div class="flex justify-between items-center py-4 border-b border-zinc-100">
-                <span class="text-zinc-600">Total Amount</span>
-                <span class="text-2xl font-bold text-zinc-900">₹{{ order.total_amount }}</span>
+        <div class="bg-zinc-50 rounded-2xl border border-zinc-100 p-6 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Order ID</span>
+                <span class="text-sm font-bold text-zinc-900">#{{ order.id }}</span>
             </div>
-
-            {% if error %}
-            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                <strong>Error:</strong> {{ error }}
+            <div class="flex justify-between items-end">
+                <span class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Total Amount</span>
+                <span class="text-4xl font-black text-zinc-900 line-height-1">₹{{ order.total_amount|floatformat:0
+                    }}</span>
             </div>
-            {% else %}
+        </div>
 
+        {% if error %}
+        <div class="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-sm font-medium mb-8">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="space-y-4">
             <button id="rzp-button1"
-                class="w-full flex justify-center items-center gap-2 rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 transition-all">
-                <span>Pay Now with Razorpay</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"></path>
-                    <path d="m12 5 7 7-7 7"></path>
+                class="w-full py-5 rounded-2xl bg-zinc-900 text-white font-black hover:bg-zinc-800 transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-3">
+                PAY NOW WITH RAZORPAY
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                        clip-rule="evenodd"></path>
                 </svg>
             </button>
-
-            <div class="text-center">
-                <p class="text-xs text-zinc-400">Secured by Razorpay</p>
-            </div>
-
-            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-            <script>
-                var options = {
-                    "key": "{{ razorpay_key_id }}",
-                    "amount": "{{ amount }}",
-                    "currency": "{{ currency }}",
-                    "name": "Aaramba",
-                    "description": "Order #{{ order.id }}",
-                    "image": "https://example.com/your_logo", // Replace with actual logo URL if available
-                    "order_id": "{{ razorpay_order_id }}",
-                    "callback_url": "{{ callback_url }}",
-                    "prefill": {
-                        "name": "{{ order.user.username }}",
-                        "email": "{{ order.user.email }}",
-                        "contact": "{{ order.user.phone }}"
-                    },
-                    "theme": {
-                        "color": "#18181b" // zinc-900
-                    }
-                };
-                var rzp1 = new Razorpay(options);
-                document.getElementById('rzp-button1').onclick = function (e) {
-                    rzp1.open();
-                    e.preventDefault();
-                }
-            </script>
-            {% endif %}
+            <p class="text-center text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Secure 256-bit SSL
+                encrypted connection</p>
         </div>
     </div>
 </div>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "{{ currency }}",
+        "name": "Aaramba Store",
+        "description": "Payment for Order #{{ order.id }}",
+        "image": "https://aaramba.com/logo.png",
+        "order_id": "{{ razorpay_order_id }}",
+        "callback_url": "{{ callback_url }}",
+        "prefill": {
+            "name": "{{ request.user.get_full_name|default:request.user.username }}",
+            "email": "{{ request.user.email }}",
+            "contact": "{{ request.user.phone|default:'' }}"
+        },
+        "theme": {
+            "color": "#18181b"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('rzp-button1').onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
 {% endblock %}

@@ -27,7 +27,7 @@ def wishlist_view(request):
 
 @require_POST
 def add_to_wishlist(request, product_id):
-    """Add a product to wishlist"""
+    """Toggle a product in wishlist (Add/Remove)"""
     product = get_object_or_404(Product, pk=product_id)
     wishlist = _get_wishlist(request)
     
@@ -44,19 +44,25 @@ def add_to_wishlist(request, product_id):
     ).first()
     
     if not existing_item:
+        # Add to wishlist
         WishlistItem.objects.create(
             wishlist=wishlist,
             product=product,
             sku=sku
         )
         message = 'Added to wishlist'
+        action = 'added'
     else:
-        message = 'Already in wishlist'
+        # Remove from wishlist
+        existing_item.delete()
+        message = 'Removed from wishlist'
+        action = 'removed'
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
             'success': True,
             'message': message,
+            'action': action,
             'wishlist_count': wishlist.items.count()
         })
     

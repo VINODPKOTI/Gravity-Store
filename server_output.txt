@@ -1,0 +1,45 @@
+﻿python : Traceback (most recent call 
+last):
+At line:1 char:1
++ python manage.py runserver 8000 
+2>&1 | Out-File -FilePath 
+server_outp ...
++ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpe 
+   cified: (Traceback (most recent   
+  call last)::String) [], RemoteEx   
+ ception
+    + FullyQualifiedErrorId : Native 
+   CommandError
+ 
+  File "C:\Users\hp\Desktop\Gravity-S
+tore\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\hp\Desktop\Gravity-S
+tore\manage.py", line 11, in main
+    from django.core.management 
+import execute_from_command_line
+  File "C:\Python311\Lib\site-package
+s\django\core\management\__init__.py"
+, line 19, in <module>
+    from django.core.management.base 
+import (
+  File "C:\Python311\Lib\site-package
+s\django\core\management\base.py", 
+line 16, in <module>
+    from 
+django.core.management.color import 
+color_style, no_style
+  File "C:\Python311\Lib\site-package
+s\django\core\management\color.py", 
+line 12, in <module>
+    import colorama
+  File "C:\Users\hp\AppData\Roaming\P
+ython\Python311\site-packages\coloram
+a\__init__.py", line 2, in <module>
+    from .initialise import init, 
+deinit, reinit, colorama_text, 
+just_fix_windows_console
+SyntaxError: source code string 
+cannot contain null bytes

@@ -1,323 +1,204 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Checkout - Aaramba{% endblock %}
+{% block title %}Secure Checkout - Aaramba{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h2 class="text-2xl font-bold text-zinc-900 mb-8">Checkout</h2>
-
-    <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Main Content -->
-        <div class="flex-grow space-y-8">
-            <form action="{% url 'orders:place_order' %}" method="post" id="checkout-form">
-                {% csrf_token %}
-
-                <!-- Address Selection -->
-                <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold text-zinc-900">1. Select Delivery Address</h3>
-                        <button type="button" id="open-add-address-modal"
-                            class="text-sm font-medium text-zinc-900 hover:underline">+ Add New</button>
+<div class="bg-zinc-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <h1 class="text-2xl md:text-3xl font-bold text-zinc-900 mb-8">Secure Checkout</h1>
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="lg:w-2/3 space-y-6">
+                <form action="{% url 'orders:place_order' %}" method="post" id="checkout-form">
+                    {% csrf_token %}
+                    <div class="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900 text-white text-sm font-bold">1</span>
+                                <h2 class="text-xl font-bold text-zinc-900">Delivery Address</h2>
+                            </div>
+                            <button type="button" id="open-add-address-modal"
+                                class="text-sm font-bold text-zinc-900 hover:text-zinc-600 transition-colors uppercase tracking-tight">+
+                                Add New Address</button>
+                        </div>
+                        {% if addresses %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="address-list">
+                            {% for address in addresses %}
+                            <label
+                                class="group relative flex flex-col p-4 cursor-pointer rounded-2xl border-2 transition-all duration-200 hover:border-zinc-300 {% if address.is_default %}border-zinc-900 bg-zinc-50/50{% else %}border-zinc-100 bg-white{% endif %}">
+                                <input type="radio" name="address" value="{{ address.id }}" class="peer sr-only" {% if address.is_default %}checked{% endif %} required>
+                                <span class="font-bold text-zinc-900 mb-1 flex items-center justify-between">{{  address.full_name }}<svg
+                                        class="w-5 h-5 text-zinc-900 opacity-0 peer-checked:opacity-100 transition-opacity"
+                                        fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                            clip-rule="evenodd"></path>
+                                    </svg></span>
+                                <span class="text-sm text-zinc-500 leading-relaxed mb-4">{{ address.street_address  }}<br>{{ address.city }}, {{ address.state }} - {{ address.postal_code }}</span>
+                                <span class="mt-auto pt-3 border-t border-zinc-100 text-xs font-bold text-zinc-400">{{  address.phone_number }}</span>
+                                <div
+                                    class="absolute inset-x-0 bottom-0 h-1 bg-zinc-900 scale-x-0 peer-checked:scale-x-100 transition-transform origin-left rounded-b-full">
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-12 bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200">
+                            <svg class="w-12 h-12 text-zinc-300 mx-auto mb-4" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <p class="text-zinc-500 mb-6">No saved addresses found</p>
+                            <button type="button" onclick="document.getElementById('open-add-address-modal').click()"
+                                class="px-6 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-bold text-zinc-900 shadow-sm hover:shadow-md transition-all">Add
+                                Your First Address</button>
+                        </div>
+                        {% endif %}
                     </div>
-
-                    {% if addresses %}
-                    <div class="space-y-4" id="address-list">
-                        {% for address in addresses %}
-                        <label
-                            class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-zinc-300 transition-colors {{ address.is_default|yesno:'border-zinc-900 ring-1 ring-zinc-900,border-zinc-200' }}">
-                            <input type="radio" name="address" value="{{ address.id }}" class="sr-only" {{
-                                address.is_default|yesno:"checked," }} required>
-
-                            <span class="flex flex-1">
-                                <span class="flex flex-col">
-                                    <span class="block text-sm font-medium text-zinc-900">{{ address.full_name }}</span>
-                                    <span class="mt-1 flex items-center text-sm text-zinc-500">
-                                        {{ address.street_address }}, {{ address.city }}, {{ address.state }} -
-                                        {{ address.postal_code }}
-                                    </span>
-
-                                    <span class="mt-6 text-sm font-medium text-zinc-900">
-                                        Phone: {{ address.phone_number }}
-                                    </span>
-                                </span>
-                            </span>
-                            <span class="pointer-events-none absolute -inset-px rounded-lg border-2"
-                                aria-hidden="true"></span>
-                            <span
-                                class="h-5 w-5 rounded-full border border-zinc-300 bg-white flex items-center justify-center ring-offset-2 ring-zinc-900 ui-checked:bg-zinc-900 ui-checked:border-transparent">
-                                <div class="h-2.5 w-2.5 rounded-full bg-zinc-900 hidden ui-checked:block"></div>
-                            </span>
-                        </label>
-                        {% endfor %}
+                    <div class="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm">
+                        <div class="flex items-center gap-3 mb-6"><span
+                                class="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900 text-white text-sm font-bold">2</span>
+                            <h2 class="text-xl font-bold text-zinc-900">Payment Method</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label
+                                class="group relative flex items-center p-4 cursor-pointer rounded-2xl border-2 transition-all duration-200 hover:border-zinc-300 border-zinc-100 bg-white">
+                                <input type="radio" name="payment_method" value="RAZORPAY" class="peer sr-only" checked
+                                    required>
+                                <div class="flex items-center gap-4 flex-grow">
+                                    <div
+                                        class="w-12 h-12 bg-zinc-50 rounded-xl flex items-center justify-center border border-zinc-100 group-hover:bg-white transition-colors">
+                                        <svg class="w-6 h-6 text-zinc-900" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                                            </path>
+                                        </svg></div>
+                                    <div>
+                                        <p class="font-bold text-zinc-900">Online Payment</p>
+                                        <p class="text-xs text-zinc-400">Cards, UPI, Netbanking</p>
+                                    </div>
+                                </div>
+                                <svg class="w-6 h-6 text-zinc-900 opacity-0 peer-checked:opacity-100 transition-opacity"
+                                    fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <div
+                                    class="absolute inset-x-0 bottom-0 h-1 bg-zinc-900 scale-x-0 peer-checked:scale-x-100 transition-transform origin-left rounded-b-full">
+                                </div>
+                            </label>
+                            <label
+                                class="group relative flex items-center p-4 cursor-pointer rounded-2xl border-2 transition-all duration-200 hover:border-zinc-300 border-zinc-100 bg-white">
+                                <input type="radio" name="payment_method" value="COD" class="peer sr-only" required>
+                                <div class="flex items-center gap-4 flex-grow">
+                                    <div
+                                        class="w-12 h-12 bg-zinc-50 rounded-xl flex items-center justify-center border border-zinc-100 group-hover:bg-white transition-colors">
+                                        <svg class="w-6 h-6 text-zinc-900" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                                            </path>
+                                        </svg></div>
+                                    <div>
+                                        <p class="font-bold text-zinc-900">Cash on Delivery</p>
+                                        <p class="text-xs text-zinc-400">Pay when you receive</p>
+                                    </div>
+                                </div>
+                                <svg class="w-6 h-6 text-zinc-900 opacity-0 peer-checked:opacity-100 transition-opacity"
+                                    fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <div
+                                    class="absolute inset-x-0 bottom-0 h-1 bg-zinc-900 scale-x-0 peer-checked:scale-x-100 transition-transform origin-left rounded-b-full">
+                                </div>
+                            </label>
+                        </div>
                     </div>
-                    {% else %}
-                    <div id="no-address-div"
-                        class="text-center py-8 bg-zinc-50 rounded-lg border border-zinc-200 border-dashed">
-                        <p class="text-zinc-500 mb-4">No addresses found.</p>
-                        <button type="button" id="open-add-address-modal-empty"
-                            class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50">
-                            Add Address
-                        </button>
+                    <div class="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm">
+                        <div class="flex items-center gap-3 mb-6"><span
+                                class="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900 text-white text-sm font-bold">3</span>
+                            <h2 class="text-xl font-bold text-zinc-900">Review Order</h2>
+                        </div>
+                        <div class="divide-y divide-zinc-100">
+                            {% for item in cart.items.all %}
+                            <div class="py-4 flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-zinc-50 rounded-xl overflow-hidden border border-zinc-100">
+                                        {% if item.product.image %}<img src="{{ item.product.image.url }}"
+                                            alt="{{ item.product.title }}" class="w-full h-full object-cover">{% endif  %}</div>
+                                    <div>
+                                        <p class="font-bold text-zinc-900">{{ item.product.title }}</p>
+                                        <p class="text-xs text-zinc-400">Quantity: {{ item.quantity }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-black text-zinc-900">₹{{ item.total_price|floatformat:0 }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    {% endif %}
+                </form>
+            </div>
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm lg:sticky lg:top-24">
+                    <h2 class="text-xl font-bold text-zinc-900 mb-6">Order Summary</h2>
+                    <div class="space-y-4 mb-8">
+                        <div class="flex justify-between text-zinc-600"><span>Subtotal</span><span
+                                class="font-bold text-zinc-900">₹{{ cart.total_price|floatformat:0 }}</span></div>
+                        <div class="flex justify-between text-zinc-600"><span>Shipping</span><span
+                                class="text-green-600 font-bold">FREE</span></div>
+                        <div class="pt-4 border-t border-zinc-100 flex justify-between items-end">
+                            <span class="text-lg font-bold text-zinc-900">Total</span>
+                            <div class="text-right">
+                                <p class="text-3xl font-black text-zinc-900">₹{{ cart.total_price|floatformat:0 }}</p>
+                                <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mt-1">Ready to
+                                    ship</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" form="checkout-form"
+                        class="flex items-center justify-center w-full py-4 rounded-2xl bg-zinc-900 text-white font-black hover:bg-zinc-800 transition-all shadow-lg hover:shadow-xl active:scale-95 group">PLACE
+                        ORDER</button>
                 </div>
-
-                <!-- Payment Method Selection -->
-                <div class="mt-8 bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-                    <h3 class="text-lg font-bold text-zinc-900 mb-4">2. Select Payment Method</h3>
-                    <div class="space-y-4">
-                        <label
-                            class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-zinc-300 transition-colors border-zinc-900 ring-1 ring-zinc-900">
-                            <input type="radio" name="payment_method" value="RAZORPAY" class="sr-only" checked required>
-                            <span class="flex flex-1">
-                                <span class="flex flex-col">
-                                    <span class="block text-sm font-medium text-zinc-900">💳 Razorpay (UPI, Card, Net
-                                        Banking)</span>
-                                    <span class="mt-1 flex items-center text-sm text-zinc-500">
-                                        Pay securely online using UPI, Credit/Debit Card, or Net Banking
-                                    </span>
-                                </span>
-                            </span>
-                            <span class="pointer-events-none absolute -inset-px rounded-lg border-2"
-                                aria-hidden="true"></span>
-                        </label>
-
-                        <label
-                            class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-zinc-300 transition-colors border-zinc-200">
-                            <input type="radio" name="payment_method" value="COD" class="sr-only">
-                            <span class="flex flex-1">
-                                <span class="flex flex-col">
-                                    <span class="block text-sm font-medium text-zinc-900">💵 Cash on Delivery</span>
-                                    <span class="mt-1 flex items-center text-sm text-zinc-500">
-                                        Pay with cash when your order is delivered
-                                    </span>
-                                </span>
-                            </span>
-                            <span class="pointer-events-none absolute -inset-px rounded-lg border-2"
-                                aria-hidden="true"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Order Review (Simplified) -->
-                <div class="mt-8 bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-                    <h3 class="text-lg font-bold text-zinc-900 mb-4">3. Review Items</h3>
-                    <p class="text-sm text-zinc-500">Total Items: {{ cart.total_items }}</p>
-                    <p class="text-sm text-zinc-500">Total Price: ₹{{ cart.total_price }}</p>
-                </div>
-            </form>
-        </div>
-
-        <!-- Order Summary Sidebar -->
-        <div class="lg:w-80 flex-shrink-0">
-            <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm sticky top-24">
-                <h3 class="text-lg font-bold text-zinc-900 mb-4">Order Summary</h3>
-
-                <div class="space-y-2 py-4 border-t border-b border-zinc-100">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-zinc-600">Items:</span>
-                        <span class="font-medium text-zinc-900">₹{{ cart.total_price }}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-zinc-600">Shipping:</span>
-                        <span class="font-medium text-zinc-900">Free</span>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center my-4">
-                    <span class="text-base font-bold text-zinc-900">Order Total:</span>
-                    <span class="text-xl font-bold text-zinc-900">₹{{ cart.total_price }}</span>
-                </div>
-
-                <button type="submit" form="checkout-form"
-                    class="w-full flex justify-center rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900">
-                    Place Order
-                </button>
-
-                <p class="mt-4 text-xs text-center text-zinc-500">
-                    By placing your order, you agree to Aaramba's <a href="#"
-                        class="underline hover:text-zinc-900">Privacy Notice</a> and <a href="#"
-                        class="underline hover:text-zinc-900">Conditions of Use</a>.
-                </p>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Custom styles for radio button selection visualization since we can't use @headlessui/react directly */
-    input[type="radio"]:checked+span+span+span {
-        border-color: #18181b;
-        /* zinc-900 */
-        border-width: 2px;
-    }
-
-    input[type="radio"]:checked+span+span+span div {
-        display: block;
-    }
-</style>
-
-<!-- Add Address Modal -->
-<div id="add-address-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title"
-    role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" id="modal-backdrop">
+<div id="address-modal"
+    class="fixed inset-0 z-50 hidden bg-zinc-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+        class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="p-6 border-b border-zinc-100 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-zinc-900">Add New Address</h2><button type="button"
+                onclick="document.getElementById('address-modal').classList.add('hidden')"
+                class="text-zinc-400 hover:text-zinc-600"><svg class="w-6 h-6" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg></button>
         </div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div
-            class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form action="{% url 'accounts:address_add' %}" method="post" id="add-address-form" class="p-6">
+        <div class="p-6">
+            <form action="{% url 'accounts:address_add' %}" method="post" id="add-address-form">
                 {% csrf_token %}
-                <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4" id="modal-title">Add New Address</h3>
-                <div class="space-y-4">
-                    {% for field in address_form %}
-                    <div>
-                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                            {{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" id="cancel-add-address"
-                        class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">Cancel</button>
-                    <button type="submit"
-                        class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-zinc-900 text-base font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 sm:text-sm">Save
-                        Address</button>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">{% for field in address_form %}<div
+                        class="{% if field.name == 'street_address' %}md:col-span-2{% endif %}"><label
+                            class="block text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1.5">{{  field.label }}</label>{{ field }}</div>{% endfor %}</div>
+                <div class="mt-8"><button type="submit"
+                        class="w-full py-4 rounded-xl bg-zinc-900 text-white font-bold hover:bg-zinc-800 transition-all shadow-lg active:scale-95">SAVE
+                        ADDRESS</button></div>
             </form>
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const modal = document.getElementById('add-address-modal');
-        const openBtn = document.getElementById('open-add-address-modal');
-        const cancelBtn = document.getElementById('cancel-add-address');
-        const backdrop = document.getElementById('modal-backdrop');
-        const form = document.getElementById('add-address-form');
-        const addressList = document.getElementById('address-list');
-        const noAddressDiv = document.getElementById('no-address-div');
-
-        function toggleModal(show) {
-            if (show) {
-                modal.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
-            } else {
-                modal.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
-            }
-        }
-
-        if (openBtn) openBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleModal(true);
-        });
-
-        // Also handle the button in "No addresses found" state
-        const openBtnEmpty = document.getElementById('open-add-address-modal-empty');
-        if (openBtnEmpty) openBtnEmpty.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleModal(true);
-        });
-
-        if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
-        if (backdrop) backdrop.addEventListener('click', () => toggleModal(false));
-
-        if (form) {
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const formData = new FormData(form);
-                const submitBtn = form.querySelector('button[type="submit"]');
-                const originalBtnContent = submitBtn.innerHTML;
-
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = 'Saving...';
-
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast(data.message, 'success');
-                            toggleModal(false);
-                            form.reset();
-
-                            // Add new address to list
-                            const address = data.address;
-                            const newAddressHtml = `
-                        <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-zinc-300 transition-colors border-zinc-200">
-                            <input type="radio" name="address" value="${address.id}" class="sr-only" checked required>
-                            <span class="flex flex-1">
-                                
-                                <span class="flex flex-col">
-                                    <span class="block text-sm font-medium text-zinc-900">${address.full_name}</span>
-                                    <span class="mt-1 flex items-center text-sm text-zinc-500">${address.street_address}, ${address.city}, ${address.state} - ${address.postal_code}</span>
-                                    <span class="mt-6 text-sm font-medium text-zinc-900">Phone: ${address.phone_number}</span>
-                                </span>
-                            </span>
-                            <span class="pointer-events-none absolute -inset-px rounded-lg border-2" aria-hidden="true"></span>
-                            <span class="h-5 w-5 rounded-full border border-zinc-300 bg-white flex items-center justify-center ring-offset-2 ring-zinc-900 ui-checked:bg-zinc-900 ui-checked:border-transparent">
-                                <div class="h-2.5 w-2.5 rounded-full bg-zinc-900 hidden ui-checked:block"></div>
-                            </span>
-                        </label>
-                        `;
-
-                            if (addressList) {
-                                addressList.insertAdjacentHTML('afterbegin', newAddressHtml);
-                                // Uncheck others? Radio buttons handle themselves but visual style might need update if I was using JS for style. 
-                                // But here I rely on CSS :checked selector, so it should be fine.
-                            } else if (noAddressDiv) {
-                                // If list didn't exist (empty state), reload page or replace empty state
-                                window.location.reload();
-                            }
-                        } else {
-                            showToast('Error saving address', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('Something went wrong', 'error');
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnContent;
-                    });
-            });
-        }
-    });
-
-    // Payment Method Selection Handler
-    document.addEventListener('DOMContentLoaded', function () {
-        const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
-
-        paymentRadios.forEach(radio => {
-            radio.addEventListener('change', function () {
-                // Remove selected styles from all labels
-                paymentRadios.forEach(r => {
-                    const label = r.closest('label');
-                    label.classList.remove('border-zinc-900', 'ring-1', 'ring-zinc-900');
-                    label.classList.add('border-zinc-200');
-                });
-
-                // Add selected styles to checked radio's label
-                if (this.checked) {
-                    const label = this.closest('label');
-                    label.classList.remove('border-zinc-200');
-                    label.classList.add('border-zinc-900', 'ring-1', 'ring-zinc-900');
-                }
-            });
-        });
-    });
-</script>
+<script>document.getElementById('open-add-address-modal').addEventListener('click', function () { document.getElementById('address-modal').classList.remove('hidden'); });</script>
 {% endblock %}
