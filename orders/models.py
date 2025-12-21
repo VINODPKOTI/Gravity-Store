@@ -17,7 +17,7 @@ class Cart(models.Model):
 
     @property
     def total_items(self):
-        return sum(item.quantity for item in self.items.all())
+        return self.items.count()
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
@@ -29,25 +29,19 @@ class CartItem(models.Model):
         return f"{self.quantity} x {self.product.title}"
 
     @property
-    def total_price(self):
-        # Use discounted price if available
-        price = self.product.discounted_price
-        # If SKU has a specific price different from base product (e.g. larger size), logic might differ.
-        # For now, let's assume SKU price overrides product price if SKU price > 0, 
-        # but we also need to apply discount. 
-        # Let's simplify: Use SKU price if set, else Product Base Price. Then apply discount.
-        
+    def unit_price(self):
         base = self.sku.price if self.sku.price > 0 else self.product.base_price
         
         # Re-calculate discount on the fly for the SKU price
         offer = self.product.get_active_offer()
         if offer:
             discount = (base * offer.discount_percent) / 100
-            final_price = base - discount
-        else:
-            final_price = base
-            
-        return final_price * self.quantity
+            return base - discount
+        return base
+
+    @property
+    def total_price(self):
+        return self.unit_price * self.quantity
 
 class Order(models.Model):
     class Status(models.TextChoices):

@@ -14,4 +14,15 @@ class Banner(models.Model):
     def __str__(self):
         return self.title
 
-# Create your models here.
+
+class SiteSettings(models.Model):
+    site_name = models.CharField(max_length=100, default='Aaramba')
+    logo = models.ImageField(upload_to='site/', blank=True, null=True, help_text="Upload your site logo")
+    favicon = models.ImageField(upload_to='site/', blank=True, null=True, help_text="Upload your favicon (ico or png)")
+    loader_image = models.ImageField(upload_to='site/', blank=True, null=True, help_text="Upload your page loader image")
+
+    def __str__(self):
+        return self.site_name
+
+    class Meta:
+        verbose_name_plural = "Site Settings"

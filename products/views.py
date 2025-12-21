@@ -1,6 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from .models import Product, Category
+import json
+from django.http import JsonResponse
+from .models import SKU
+import traceback
 
 def product_list(request, category_slug=None):
     category = None
@@ -41,7 +45,11 @@ def product_list(request, category_slug=None):
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk, is_active=True)
     skus = product.skus.filter(stock__gt=0)
-    
+
+    # 🔹 Convert SKU attributes to JSON for the template
+    for sku in skus:
+        sku.attrs_json = json.dumps(sku.attributes or {})
+
     # Check if in wishlist
     in_wishlist = False
     if request.user.is_authenticated:
@@ -57,9 +65,13 @@ def product_detail(request, pk):
             if wishlist:
                 in_wishlist = wishlist.items.filter(product=product).exists()
 
-    return render(request, 'products/product_detail.html', {'product': product, 'skus': skus, 'in_wishlist': in_wishlist})
+    return render(request, 'products/product_detail.html', {
+        'product': product,
+        'skus': skus,
+        'in_wishlist': in_wishlist
+    })
 
-from django.http import JsonResponse
+
 
 def product_search_suggestions(request):
     query = request.GET.get('q', '')
@@ -80,3 +92,21 @@ def product_search_suggestions(request):
             'url': f"/products/{product.id}/" # Assuming standard URL structure, ideally use reverse() but simpler for JSON here
         })
     return JsonResponse({'results': results})
+
+
+
+def get_sku_attributes(request, sku_id):
+    """
+    Returns SKU attributes as JSON for AJAX requests
+    """
+    try:
+        sku = SKU.objects.get(pk=sku_id)
+        return JsonResponse({
+            'attributes': sku.attributes or {}
+        })
+    except SKU.DoesNotExist:
+        return JsonResponse({'attributes': {}}, status=404)
+    except Exception as e:
+        print("Error in get_sku_attributes:", e)
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)

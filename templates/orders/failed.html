@@ -1,14 +1,50 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Payment Failed - Aaramba{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 50px; text-align: center;">
-    <div class="card" style="max-width: 500px; margin: 0 auto;">
-        <h2 style="color: red;">Payment Failed</h2>
-        <p>Something went wrong with your payment.</p>
-        <p>Please try again.</p>
-        <a href="{% url 'orders:view_cart' %}" class="btn btn-primary" style="margin-top: 20px;">Return to Cart</a>
+<div class="bg-zinc-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-white rounded-[3rem] border border-red-100 shadow-2xl overflow-hidden text-center p-8 md:p-12 relative">
+        <!-- Decoration / Background elements -->
+        <div class="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-red-50 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-zinc-50 rounded-full blur-3xl opacity-50"></div>
+
+        <!-- Failed Icon -->
+        <div class="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
+            <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </div>
+
+        <!-- Text Content -->
+        <h1 class="text-3xl md:text-5xl font-black text-zinc-900 mb-4 tracking-tighter">PAYMENT FAILED</h1>
+        <p class="text-lg text-zinc-500 mb-8 max-w-sm mx-auto font-medium">Something went wrong with your transaction. Don't worry, no money was deducted from your account.</p>
+
+        <!-- Troubleshooting Box -->
+        <div class="bg-red-50/50 rounded-2xl border border-red-100 p-6 mb-10 text-left">
+            <h3 class="text-sm font-bold text-red-900 mb-2 uppercase tracking-wider">Common reasons:</h3>
+            <ul class="text-sm text-red-700 space-y-2 list-disc list-inside">
+                <li>Incorrect card details or OTP</li>
+                <li>Insufficient funds in your account</li>
+                <li>Connection timeout during payment processing</li>
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{% url 'orders:view_cart' %}"
+                class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-zinc-900 text-white font-black hover:bg-zinc-800 transition-all shadow-lg hover:shadow-xl active:scale-95 group">
+                RETRY PAYMENT
+            </a>
+            <a href="{% url 'core:home' %}"
+                class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-white border border-zinc-200 text-zinc-900 font-bold hover:bg-zinc-50 transition-all shadow-sm active:scale-95">
+                BACK TO HOME
+            </a>
+        </div>
+
+        <p class="mt-12 text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Contact Support if this persists</p>
     </div>
 </div>
 {% endblock %}

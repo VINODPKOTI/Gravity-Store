@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Aaramba{% endblock %}</title>
+    <title>{% block title %}{{ site_settings.site_name|default:"Aaramba" }}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     {% load static %}
+    <link rel="icon" type="image/png"
+        href="{% if site_settings.favicon %}{{ site_settings.favicon.url }}{% else %}{% static 'images/favicon.png' %}{% endif %}">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
@@ -52,12 +54,32 @@
 
 <body class="bg-zinc-50 text-zinc-900 antialiased min-h-screen flex flex-col">
 
+    <!-- Page Loader -->
+    <div id="page-loader"
+        class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-all duration-500">
+        <div class="relative flex flex-col items-center gap-4">
+            <div class="relative h-20 w-20">
+                <img src="{% if site_settings.loader_image %}{{ site_settings.loader_image.url }}{% else %}{% static 'images/loader-logo.png' %}{% endif %}"
+                    alt="Loading..." class="h-full w-full object-contain animate-pulse">
+                <div class="absolute inset-0 border-4 border-primary/20 border-t-primary rounded-full animate-spin">
+                </div>
+            </div>
+            <span class="text-sm font-medium text-zinc-500 animate-pulse">
+                {{ site_settings.site_name|default:"Aaramba" }} ... </span>
+        </div>
+    </div>
+
     <!-- Navbar -->
     <header class="main-header sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md">
         <div class="container mx-auto px-4 h-12 flex items-center justify-between">
             <!-- Logo -->
             <a href="{% url 'core:home' %}" class="logo flex items-center gap-1 md:gap-2 flex-shrink-0">
+                {% if site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}"
+                    class="h-8 md:h-9 w-auto object-contain">
+                {% else %}
                 <span class="text-lg md:text-xl font-bold tracking-tighter">Aaramba</span>
+                {% endif %}
             </a>
 
             <!-- Search Bar (Visible on Mobile & Desktop) -->
@@ -460,6 +482,20 @@
                         btn.disabled = false;
                         btn.style.opacity = originalOpacity;
                     });
+            }
+        });
+    </script>
+
+    <!-- Page Loader Script -->
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('page-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+                setTimeout(() => {
+                    loader.remove();
+                }, 500);
             }
         });
     </script>

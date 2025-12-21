@@ -25,6 +25,7 @@ def _get_wishlist(request):
         wishlist, created = Wishlist.objects.get_or_create(session_id=session_id)
     return wishlist
 
+
 def cart_wishlist_counts(request):
     """
     Context processor to provide global cart and wishlist counts.
@@ -38,4 +39,14 @@ def cart_wishlist_counts(request):
     return {
         'global_cart_count': cart.total_items,
         'global_wishlist_count': wishlist.items.count()
+    }
+
+def site_settings(request):
+    """
+    Context processor to provide global site settings.
+    """
+    from .models import SiteSettings
+    settings = SiteSettings.objects.first()
+    return {
+        'site_settings': settings
     }

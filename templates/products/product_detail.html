@@ -32,7 +32,7 @@
                     <span class="text-zinc-900 truncate">{{ product.title }}</span>
                 </nav>
                 <h1 class="text-xl md:text-2xl font-bold tracking-tight text-zinc-900">{{ product.title }}</h1>
-                <p class="text-sm font-medium text-primary">{{ product.category.name }}</p>
+                <p class="text-sm font-medium text-black ">{{ product.category.name }}</p>
                 <div class="mt-2 flex items-center gap-3">
                     {% if product.get_active_offer %}
                     <p class="text-2xl font-bold text-zinc-900">₹{{ product.discounted_price }}</p>
@@ -48,54 +48,101 @@
             </div>
 
             <form action="{% url 'orders:add_to_cart' product.id %}" method="post"
-                class="space-y-4 pt-4 border-t border-zinc-100 add-to-cart-form">
+                class="space-y-5 pt-4 border-t border-zinc-200 add-to-cart-form">
                 {% csrf_token %}
-                <div>
-                    <label for="sku"
-                        class="block text-xs font-semibold text-zinc-900 mb-1.5 uppercase tracking-wider">Select
-                        Option</label>
+
+                <!-- SKU SELECT -->
                     <select name="sku" id="sku"
-                        class="block w-full rounded-lg border-zinc-200 bg-zinc-50 py-2 pl-3 pr-10 text-sm focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 border">
+                        class="block w-full rounded-xl border border-zinc-300 bg-zinc-50 py-2.5 px-3 text-sm
+                            focus:border-black focus:ring-black focus:ring-1">
+
                         {% for sku in skus %}
-                        <option value="{{ sku.id }}" {% if sku.stock < 1 %}disabled{% endif %}>{{ sku.sku_code }} - ₹{{
-                            sku.price }}{% if sku.attributes %} ({% for key, val in sku.attributes.items %}{{ key }}: {{
-                            val }}{% if not forloop.last %}, {% endif %}{% endfor %}){% endif %}{% if sku.stock < 1 %}
-                                (Out of Stock){% endif %}</option>
-                                {% empty %}
-                        <option disabled>No options available</option>
+                          <option value="{{ sku.id }}" data-attrs="{{ sku.attrs_json|escapejs }}"
+                                    {% if sku.stock < 1 %}disabled{% endif %}>
+                                {% if sku.attributes.weight %}
+                                    {{ sku.attributes.weight }}
+                                {% else %}
+                                    {{ sku.sku_code }}
+                                {% endif %}
+                                {% if sku.stock < 1 %} (Out of Stock){% endif %}
+                            </option>
+                        {% empty %}
+                            <option disabled>No options available</option>
                         {% endfor %}
                     </select>
-                </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="w-24">
-                        <label for="quantity" class="sr-only">Quantity</label>
-                        <select name="quantity" id="quantity"
-                            class="block w-full rounded-lg border-zinc-200 bg-zinc-50 py-2 text-sm focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 border">
-                            {% for i in "123456789"|make_list %}<option value="{{ i }}">{{ i }}</option>{% endfor %}
-                        </select>
+
+
+                <!-- ATTRIBUTES DISPLAY -->
+                {% if skus %}
+                    <!-- ATTRIBUTES DISPLAY -->
+                    <div id="sku-attributes">
+                        <p class="text-xs font-bold text-zinc-900 mb-2 uppercase tracking-wide">
+                            Product Details
+                        </p>
+
+                        <div id="attributes-grid"
+                            class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        </div>
                     </div>
-                    <button type="submit"
-                        class="flex-1 inline-flex items-center justify-center h-10 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Add
-                        to Cart</button>
-                    <button type="button"
-                        class="wishlist-btn inline-flex items-center justify-center h-10 w-10 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 transition-colors"
-                        data-product-id="{{ product.id }}">
-                        {% csrf_token %}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="wishlist-heart transition-colors {% if product.pk in wishlist_product_ids %}text-red-500 fill-red-500{% else %}text-zinc-600{% endif %}"
-                            style="{% if product.pk in wishlist_product_ids %}fill: #ef4444; stroke: #ef4444;{% endif %}">
-                            <path
-                                d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                        </svg>
-                    </button>
-                </div>
+                {% endif %}
+                    <!-- ACTION BUTTONS -->
+                    <div class="space-y-3">
 
-                <button type="submit" name="buy_now" value="true"
-                    class="w-full inline-flex items-center justify-center h-10 rounded-lg bg-primary text-white text-sm font-semibold shadow hover:bg-primary/90 transition-colors">Buy
-                    It Now</button>
+                        <!-- ROW 1 -->
+                        <div class="flex gap-3 items-stretch">
+
+                            <!-- QUANTITY -->
+                            <div class="w-24">
+                                <label for="quantity" class="sr-only">Quantity</label>
+                                <select name="quantity" id="quantity"
+                                    class="block w-full h-11 rounded-xl border border-zinc-300 bg-zinc-50 text-sm
+                                        focus:border-black focus:ring-black focus:ring-1">
+                                    {% for i in "123456789"|make_list %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- WISHLIST -->
+                            <button type="button"
+                                class="wishlist-btn h-11 w-11 flex items-center justify-center
+                                    rounded-xl border border-zinc-300 bg-white hover:bg-zinc-50 transition"
+                                data-product-id="{{ product.id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    class="{% if product.pk in wishlist_product_ids %}
+                                            text-red-500 fill-red-500
+                                        {% else %}
+                                            text-zinc-600
+                                        {% endif %}">
+                                    <path
+                                        d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3
+                                        c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2
+                                        A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                                </svg>
+                            </button>
+
+                            <!-- ADD TO CART -->
+                            <button type="submit"
+                                class="flex-1 h-11 inline-flex items-center justify-center rounded-xl
+                                    bg-black px-4 text-sm font-bold text-white
+                                    hover:bg-zinc-900 transition-all active:scale-95">
+                                Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- BUY NOW -->
+                        <button type="submit" name="buy_now" value="true"
+                            class="w-full h-11 rounded-xl bg-black text-white text-sm font-black
+                                hover:bg-zinc-900 transition-all shadow-lg active:scale-95">
+                            Buy It Now
+                        </button>
+
+                    </div>
+
             </form>
+
 
             <div class="pt-4 border-t border-zinc-100">
                 <div class="flex items-center gap-2 text-xs text-zinc-500">
@@ -104,11 +151,67 @@
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                     </svg>
-                    <span>Sold by <span class="font-medium text-zinc-900">{{ product.seller.business_name
-                            }}</span></span>
+                    <span>Sold by <span class="font-medium text-zinc-900">
+                        {{ product.seller.business_name  }}</span></span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const skuSelect = document.getElementById('sku');
+    const grid = document.getElementById('attributes-grid');
+
+    function renderAttributes(attrs) {
+        grid.innerHTML = '';
+
+        if (!attrs || Object.keys(attrs).length === 0) {
+            grid.innerHTML = `<p class="text-sm text-zinc-500">No details available</p>`;
+            return;
+        }
+
+        Object.entries(attrs).forEach(([key, value]) => {
+            const div = document.createElement('div');
+            div.className = 'rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2';
+            div.innerHTML = `
+                <span class="block text-[10px] uppercase tracking-wide text-zinc-500 font-semibold">
+                    ${key}
+                </span>
+                <span class="block text-sm font-bold text-zinc-900">
+                    ${value}
+                </span>
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    async function loadSelectedSKUAttributes() {
+        const skuId = skuSelect.value;
+        if (!skuId) return;
+
+        try {
+            // Use the Django URL directly
+            const url = "{% url 'products:sku_attributes' 0 %}".replace('/0/', `/${skuId}/`);
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+            renderAttributes(data.attributes || {});
+        } catch (err) {
+            console.error('Error loading SKU attributes', err);
+            grid.innerHTML = `<p class="text-sm text-red-500">Unable to load attributes</p>`;
+        }
+    }
+
+    skuSelect.addEventListener('change', loadSelectedSKUAttributes);
+
+    // Load attributes of the first SKU on page load
+    loadSelectedSKUAttributes();
+});
+</script>
+
+
+
+
 {% endblock %}
