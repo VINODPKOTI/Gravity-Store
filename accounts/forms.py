@@ -2,14 +2,14 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, Address
 INPUT_CLASS = (
-    "flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm "
+    "flex h-10 w-full  border border-zinc-200 bg-white px-3 py-2 text-sm "
     "ring-offset-white placeholder:text-zinc-500 "
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 "
-    "disabled:cursor-not-allowed disabled:opacity-50"
+    "disabled:cursor-not-allowed disabled:opacity-50 "
 )
 
 TEXTAREA_CLASS = (
-    "flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm "
+    "flex min-h-[80px] w-full  border border-zinc-200 bg-white px-3 py-2 text-sm "
     "ring-offset-white placeholder:text-zinc-500 "
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 "
     "disabled:cursor-not-allowed disabled:opacity-50"

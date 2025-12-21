@@ -38,9 +38,9 @@
 
                 <!-- Username -->
                 <div>
-                    <label for="{{ form.username.id_for_label }}"
-                        class="block text-sm font-medium text-zinc-700">Username</label>
-                    <div class="mt-1 border border-zinc-200 p-2 rounded-md">
+                       <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-zinc-700">
+                        User Name</label>
+                    <div class="mt-1">
                         {{ form.username }}
                     </div>
                     {% if form.username.errors %}
@@ -52,7 +52,7 @@
                 <div>
                     <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-zinc-700">Email
                         Address</label>
-                    <div class="mt-1 border border-zinc-200 p-2 rounded-md">
+                    <div class="mt-1">
                         {{ form.email }}
                     </div>
                     {% if form.email.errors %}

@@ -269,6 +269,14 @@
 
     <!-- Scripts -->
     <script>
+    document.addEventListener('DOMContentLoaded', () => {
+            {% if messages %}
+                {% for message in messages %}
+                    showToast("{{ message|escapejs }}", "{{ message.tags }}");
+                {% endfor %}
+            {% endif %}
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             // Search Suggestions Logic
             const searchInput = document.getElementById('search-input');

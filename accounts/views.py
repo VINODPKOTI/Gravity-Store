@@ -124,7 +124,6 @@ def custom_login(request):
             
             # Login the user
             auth_login(request, user)
-            
             # Merge guest cart into user cart
             if guest_cart_id:
                 try:
@@ -174,7 +173,6 @@ def custom_login(request):
                         else:
                             # Item already in wishlist, delete duplicate
                             item.delete()
-                    
                     # Delete guest wishlist
                     guest_wishlist.delete()
                 except Wishlist.DoesNotExist:
@@ -185,6 +183,5 @@ def custom_login(request):
             return redirect(next_url)
         else:
             messages.error(request, 'Invalid username or password.')
-    
     return render(request, 'accounts/login.html')
 
