@@ -8,6 +8,7 @@ from accounts.models import Address
 from accounts.forms import AddressForm
 from .models import Cart, CartItem, Order, OrderItem
 from delivery.models import Shipment
+import json
 
 def _get_cart(request):
     if request.user.is_authenticated:

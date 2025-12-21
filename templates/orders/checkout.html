@@ -18,9 +18,11 @@
                                     class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-bold">1</span>
                                 <h2 class="text-xl font-bold text-zinc-900">Delivery Address</h2>
                             </div>
-                            <button type="button" id="open-add-address-modal"
-                                class="text-sm font-bold text-zinc-900 hover:text-zinc-600 transition-colors uppercase tracking-tight">+
-                                Add New Address</button>
+                        <a href="{% url 'accounts:address_add' %}"
+                        class="inline-block text-sm font-bold text-white bg-black px-4 py-2 rounded-xl
+                                hover:bg-zinc-900 transition uppercase tracking-tight">
+                        + Add New Address
+                        </a>
                         </div>
                         {% if addresses %}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="address-list">
