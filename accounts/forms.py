@@ -19,7 +19,7 @@ TEXTAREA_CLASS = (
 
 class RegistrationForm(UserCreationForm):
     phone = forms.CharField(
-        max_length=15,
+        max_length=10,
         required=False,
         widget=forms.TextInput(attrs={"class": INPUT_CLASS})
     )

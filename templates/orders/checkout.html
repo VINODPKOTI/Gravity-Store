@@ -25,10 +25,21 @@
                         </a>
                         </div>
                         {% if addresses %}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="address-list">
+<div id="address-list"
+     class="flex gap-4 overflow-x-auto pb-2 scroll-smooth
+            snap-x snap-mandatory">
                             {% for address in addresses %}
-                            <label
-                                class="group relative flex flex-col p-4 cursor-pointer rounded-2xl border-2 transition-all duration-200 hover:border-zinc-300 {% if address.is_default %}border-zinc-900 bg-zinc-50/50{% else %}border-zinc-100 bg-white{% endif %}">
+                         <label
+    class="group relative flex flex-col p-4 cursor-pointer
+           rounded-2xl border-2 transition-all duration-200
+           hover:border-zinc-300
+           min-w-[280px] sm:min-w-[320px]
+           snap-start
+           {% if address.is_default %}
+               border-zinc-900 bg-zinc-50/50
+           {% else %}
+               border-zinc-100 bg-white
+           {% endif %}">
                                 <input type="radio" name="address" value="{{ address.id }}" class="peer sr-only" {% if address.is_default %}checked{% endif %} required>
                                 <span class="font-bold text-zinc-900 mb-1 flex items-center justify-between">{{  address.full_name }}<svg
                                         class="w-5 h-5 text-zinc-900 opacity-0 peer-checked:opacity-100 transition-opacity"

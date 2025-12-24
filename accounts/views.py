@@ -1,21 +1,30 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from .forms import RegistrationForm, AddressForm
 from .models import Address
+
 
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.role = user.Role.CUSTOMER  # Default all new users to Customer
+            user.role = user.Role.CUSTOMER
             user.save()
+
+            user = authenticate(
+                request,
+                username=user.username,
+                password=form.cleaned_data['password1']
+            )
+
             login(request, user)
             return redirect('core:home')
     else:
         form = RegistrationForm()
+
     return render(request, 'accounts/register.html', {'form': form})
 
 @login_required
