@@ -3,39 +3,201 @@
 {% block title %}My Products - Aaramba{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 30px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>My Products</h2>
-        <a href="{% url 'sellers:product_add' %}" class="btn btn-primary">Add New Product</a>
+<div class="container mx-auto mt-8 px-4">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold text-gray-900">My Products</h2>
+        <!-- Category Filter Dropdown -->
+<div class="mb-6 max-w-xs flex flex-col md:flex-row md:items-center md:gap-3">
+    <label class="text-sm font-medium text-gray-700 mb-1 md:mb-0">
+        Filter by Category
+    </label>
+    <select
+        id="categoryFilter"
+        onchange="filterCategory(this.value)"
+        class="w-full md:w-auto rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black">
+        <option value="all">All Categories</option>
+
+        {% for product in products %}
+            {% ifchanged product.category.id %}
+                <option value="{{ product.category.name|slugify }}">
+                    {{ product.category.name }}
+                </option>
+            {% endifchanged %}
+        {% endfor %}
+    </select>
+</div>
+
+        <a href="{% url 'sellers:product_add' %}"
+           class="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 transition">
+            + Add New Product
+        </a>
+
     </div>
 
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background-color: #eee;">
-                <th style="padding: 10px; text-align: left;">Title</th>
-                <th style="padding: 10px; text-align: left;">Category</th>
-                <th style="padding: 10px; text-align: left;">Price</th>
-                <th style="padding: 10px; text-align: left;">Status</th>
-                <th style="padding: 10px; text-align: left;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 10px;">{{ product.title }}</td>
-                <td style="padding: 10px;">{{ product.category.name }}</td>
-                <td style="padding: 10px;">₹{{ product.base_price }}</td>
-                <td style="padding: 10px;">{% if product.is_active %}Active{% else %}Inactive{% endif %}</td>
-                <td style="padding: 10px;">
-                    <a href="{% url 'sellers:product_edit' product.pk %}" style="color: blue;">Edit</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" style="padding: 20px; text-align: center;">No products found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Card -->
+    <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b">
+                    <tr class="text-left text-gray-600">
+                        <th class="px-4 py-3">Image</th>
+                        <th class="px-4 py-3">Title</th>
+                        <th class="px-4 py-3">Category</th>
+                        <th class="px-4 py-3">Price</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y">
+                {% for product in products %}
+<tr class="product-row hover:bg-gray-50 transition"
+    data-category="{{ product.category.name|slugify }}">
+                        <!-- Image -->
+                        <td class="px-4 py-3">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}"
+                                     alt="{{ product.title }}"
+                                     class="h-12 w-12 rounded-md object-cover border">
+                            {% else %}
+                                <div class="h-12 w-12 rounded-md bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                                    No Image
+                                </div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Title -->
+                        <td class="px-4 py-3 font-medium text-gray-900">
+                            {{ product.title }}
+                        </td>
+
+                        <!-- Category -->
+                        <td class="px-4 py-3 text-gray-600">
+                            {{ product.category.name }}
+                        </td>
+
+                        <!-- Price -->
+                        <td class="px-4 py-3 text-gray-800">
+                            ₹{{ product.base_price }}
+                        </td>
+
+                        <!-- Status -->
+                        <td class="px-4 py-3">
+                            {% if product.is_active %}
+                                <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+
+                            <!-- Edit -->
+                            <a href="{% url 'sellers:product_edit' product.pk %}"
+                            class="text-sm font-medium text-blue-600 hover:underline">
+                                Edit
+                            </a>
+
+                            <!-- Delete (opens modal) -->
+                            <button
+                                onclick="openDeleteModal('{{ product.pk }}', '{{ product.title }}')"
+                                class="text-sm font-medium text-red-600 hover:underline">
+                                Delete
+                            </button>
+
+                        </div>
+                        </td>
+
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            No products found.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal"
+     class="fixed inset-0 hidden items-center justify-center bg-black/50 z-50">
+
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900">
+            Delete Product
+        </h3>
+
+        <p class="mt-2 text-sm text-gray-600">
+            Are you sure you want to delete
+            <span id="productTitle" class="font-medium"></span>?
+            This action cannot be undone.
+        </p>
+
+<form id="deleteForm"
+      method="post"
+      data-url-template="{% url 'sellers:product_delete' 0 %}"
+      class="mt-6 flex justify-end gap-3">            {% csrf_token %}
+            <button type="button"
+                    onclick="closeDeleteModal()"
+                    class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                Cancel
+            </button>
+
+            <button type="submit"
+                    class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+                Delete
+            </button>
+        </form>
+    </div>
+</div>
+<script>
+function openDeleteModal(productId, productTitle) {
+    const modal = document.getElementById('deleteModal');
+    const form = document.getElementById('deleteForm');
+    const titleSpan = document.getElementById('productTitle');
+
+    const urlTemplate = form.dataset.urlTemplate;
+    form.action = urlTemplate.replace('0', productId);
+
+    titleSpan.textContent = productTitle;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function filterCategory(category) {
+    const rows = document.querySelectorAll('.product-row');
+
+    rows.forEach(row => {
+        const rowCategory = row.dataset.category;
+
+        if (category === 'all' || rowCategory === category) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+
 {% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="w-full px-6 py-8">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold">Order #{{ order.id }}</h1>
+            <p class="text-sm text-gray-500">
+                Placed on {{ order.created_at|date:"d M Y, H:i" }}
+            </p>
+        </div>
+
+        <!-- Status Badge -->
+        <span class="px-3 py-1 rounded-full text-sm font-medium
+            {% if order.status == 'PAID' %}bg-green-100 text-green-700
+            {% elif order.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+            {% elif order.status == 'CANCELLED' %}bg-red-100 text-red-700
+            {% else %}bg-blue-100 text-blue-700{% endif %}">
+            {{ order.status }}
+        </span>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- LEFT: Order Items -->
+        <div class="lg:col-span-2 bg-white border rounded-xl shadow-sm">
+
+            <div class="p-4 border-b">
+                <h2 class="text-lg font-semibold">Items</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 text-left">
+                        <tr>
+                            <th class="px-4 py-3">Product</th>
+                            <th class="px-4 py-3">SKU</th>
+                            <th class="px-4 py-3">Qty</th>
+                            <th class="px-4 py-3">Price</th>
+                            <th class="px-4 py-3 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        {% for item in items %}
+                        <tr>
+                            <td class="px-4 py-3 font-medium">
+                                {{ item.product.title }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-500">
+                                {{ item.sku }}
+                            </td>
+                            <td class="px-4 py-3">
+                                {{ item.quantity }}
+                            </td>
+                            <td class="px-4 py-3">
+                                ₹{{ item.price|floatformat:2 }}
+                            </td>
+                            <td class="px-4 py-3 text-right font-medium">
+                                  ₹{{ item.row_total|floatformat:2 }}
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total -->
+            <div class="p-4 flex justify-end border-t">
+                <p class="text-lg font-semibold">
+                    Seller Total: ₹{{ seller_total|floatformat:2 }}
+                </p>
+            </div>
+        </div>
+
+        <!-- RIGHT: Actions -->
+        <div class="space-y-6">
+
+            <!-- Buyer Info -->
+            <div class="bg-white border rounded-xl p-4 shadow-sm">
+                <h3 class="font-semibold mb-2">Buyer</h3>
+                <p class="text-sm">{{ buyer.username }}</p>
+                <p class="text-sm text-gray-500">{{ buyer.email }}</p>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="bg-white border rounded-xl p-4 shadow-sm">
+                <h3 class="font-semibold mb-2">Shipping Address</h3>
+                <p class="text-sm text-gray-600 whitespace-pre-line">
+                    {{ address }}
+                </p>
+            </div>
+
+            <!-- Order Actions -->
+            <div class="bg-white border rounded-xl p-4 shadow-sm space-y-4">
+
+                <h3 class="font-semibold">Order Actions</h3>
+
+                <!-- Change Status -->
+                <div>
+                    <label class="text-sm font-medium">Update Status</label>
+                    <select
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-black">
+                        <option>Pending</option>
+                        <option>Paid</option>
+                        <option>Processing</option>
+                        <option>Shipped</option>
+                        <option>Out for Delivery</option>
+                        <option>Delivered</option>
+                        <option>Cancelled</option>
+                    </select>
+                </div>
+
+                <!-- Assign Delivery Partner -->
+                <div>
+                    <label class="text-sm font-medium">Assign Delivery Partner</label>
+                    <select
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm">
+                        <option>-- Select Partner --</option>
+                        <option>BlueDart</option>
+                        <option>Delhivery</option>
+                        <option>DTDC</option>
+                        <option>Local Partner</option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-2 pt-2">
+                    <button
+                        class="flex-1 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+                        Save Changes
+                    </button>
+
+                    <button
+                        class="flex-1 rounded-md border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                        Cancel Order
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

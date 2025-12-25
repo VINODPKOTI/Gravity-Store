@@ -1,48 +1,199 @@
 {% extends 'base.html' %}
-
 {% block title %}Seller Dashboard - Aaramba{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+<div class="container mx-auto px-4 py-8 space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-zinc-900">Seller Dashboard</h2>
+            <h2 class="text-3xl font-bold text-zinc-900">Seller Dashboard</h2>
             <p class="text-zinc-500">Welcome back, {{ seller.business_name }}</p>
         </div>
         <div class="flex gap-3">
-            <a href="{% url 'sellers:product_list' %}"
-                class="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
-                Manage Products
+            <a href="{% url 'sellers:product_add' %}"
+               class="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">
+                + Add Product
             </a>
-            <a href="#"
-                class="inline-flex items-center justify-center rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+            <a href="{% url 'sellers:product_list' %}"
+               class="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 transition">
+                My Products
+            </a>
+            <a href="{% url 'sellers:seller_orders' %}"
+               class="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">
                 View Orders
             </a>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-            <h3 class="text-sm font-medium text-zinc-500">Account Status</h3>
-            <div class="mt-2 flex items-center gap-2">
-                {% if seller.is_approved %}
-                <span
-                    class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Approved</span>
-                {% else %}
-                <span
-                    class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">Pending
-                    Approval</span>
-                {% endif %}
-            </div>
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div class="bg-white border rounded-xl p-6">
+            <p class="text-sm text-zinc-500">Total Products</p>
+            <p class="mt-2 text-3xl font-bold">{{ products.count }}</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-            <h3 class="text-sm font-medium text-zinc-500">Commission Rate</h3>
-            <p class="mt-2 text-2xl font-bold text-zinc-900">{{ seller.commission_rate }}%</p>
+
+        <div class="bg-white border rounded-xl p-6">
+            <p class="text-sm text-zinc-500">Total Orders</p>
+            <p class="mt-2 text-3xl font-bold">{{ total_orders }}</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
-            <h3 class="text-sm font-medium text-zinc-500">Total Products</h3>
-            <p class="mt-2 text-2xl font-bold text-zinc-900">{{ seller.product_set.count }}</p>
+
+        <div class="bg-white border rounded-xl p-6">
+            <p class="text-sm text-zinc-500">Pending Orders</p>
+            <p class="mt-2 text-3xl font-bold text-yellow-600">{{ pending_orders }}</p>
+        </div>
+
+        <div class="bg-white border rounded-xl p-6">
+            <p class="text-sm text-zinc-500">Total Earnings</p>
+            <p class="mt-2 text-3xl font-bold text-green-600">
+                ₹{{ total_earnings|floatformat:2 }}
+            </p>
         </div>
     </div>
+<!-- Sales Analytics -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Today Sales -->
+    <div class="bg-white border rounded-xl p-6 shadow-sm">
+        <h3 class="text-lg font-semibold mb-4">Today Sales</h3>
+        <canvas id="todaySalesChart" height="120"></canvas>
+    </div>
+
+    <!-- Weekly Sales -->
+    <div class="bg-white border rounded-xl p-6 shadow-sm">
+        <h3 class="text-lg font-semibold mb-4">Weekly Sales</h3>
+        <canvas id="weeklySalesChart" height="120"></canvas>
+    </div>
+
+    <!-- Monthly Sales -->
+    <div class="bg-white border rounded-xl p-6 shadow-sm">
+        <h3 class="text-lg font-semibold mb-4">Monthly Sales</h3>
+        <canvas id="monthlySalesChart" height="120"></canvas>
+    </div>
+
 </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white border rounded-xl shadow-sm">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold">Recent Orders</h3>
+        </div>
+
+        {% if recent_orders %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-zinc-50 text-zinc-600">
+                    <tr>
+                        <th class="px-6 py-3 text-left">Order</th>
+                        <th class="px-6 py-3 text-left">Date</th>
+                        <th class="px-6 py-3 text-left">Status</th>
+                        <th class="px-6 py-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td class="px-6 py-3 font-medium">#{{ order.id }}</td>
+                        <td class="px-6 py-3 text-zinc-500">
+                            {{ order.created_at|date:"d M Y" }}
+                        </td>
+                        <td class="px-6 py-3">
+                            <span class="px-2 py-1 rounded-full text-xs
+                                {% if order.status == 'PAID' %}bg-green-100 text-green-700
+                                {% elif order.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+                                {% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3 text-right">
+                            <a href="{% url 'sellers:seller_order_detail' order.id %}"
+                               class="text-blue-600 hover:underline">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p class="p-6 text-zinc-500">No orders yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+<script>
+const commonOptions = {
+    responsive: true,
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            callbacks: {
+                label: (ctx) => `₹${ctx.parsed.y}`
+            }
+        }
+    },
+    scales: {
+        y: {
+            ticks: {
+                callback: value => `₹${value}`
+            }
+        }
+    }
+};
+
+// Today Sales
+new Chart(document.getElementById('todaySalesChart'), {
+    type: 'line',
+    data: {
+        labels: {{ today_labels|safe }},
+        datasets: [{
+            data: {{ today_totals|safe }},
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 5
+        }]
+    },
+    options: commonOptions
+});
+
+// Weekly Sales
+new Chart(document.getElementById('weeklySalesChart'), {
+    type: 'line',
+    data: {
+        labels: {{ weekly_labels|safe }},
+        datasets: [{
+            data: {{ weekly_totals|safe }},
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 5
+        }]
+    },
+    options: commonOptions
+});
+
+// Monthly Sales
+new Chart(document.getElementById('monthlySalesChart'), {
+    type: 'line',
+    data: {
+        labels: {{ monthly_labels|safe }},
+        datasets: [{
+            data: {{ monthly_totals|safe }},
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 5
+        }]
+    },
+    options: commonOptions
+});
+</script>
+
+
 {% endblock %}

@@ -16,6 +16,7 @@
             font-family: 'Outfit', sans-serif;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -130,7 +131,7 @@
                         class="text-sm font-medium hover:text-primary transition-colors">Profile</a>
 
                     <!-- Hi, User Greeting -->
-                    <span class="text-sm font-medium text-zinc-500 ml-2">Hi, {{ user.username }}</span>
+                    <span class="text-sm font-medium text-zinc-500 ml-2">Hi, {{ user.username|capfirst }}</span>
 
                     <form action="{% url 'accounts:logout' %}" method="post" class="inline">
                         {% csrf_token %}
