@@ -6,9 +6,10 @@ class Shipment(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
         READY_TO_SHIP = 'READY', 'Ready to Ship'
+        OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY', 'Out for Delivery'
+        CANCELLED = 'CANCELLED', 'Cancelled'
         SHIPPED = 'SHIPPED', 'Shipped'
         DELIVERED = 'DELIVERED', 'Delivered'
-        RETURNED = 'RETURNED', 'Returned'
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='shipments')
     seller = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name='shipments')

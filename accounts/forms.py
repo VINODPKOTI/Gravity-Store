@@ -18,6 +18,12 @@ TEXTAREA_CLASS = (
 
 
 class RegistrationForm(UserCreationForm):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={"class": INPUT_CLASS})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={"class": INPUT_CLASS})
+    )
     phone = forms.CharField(
         max_length=10,
         required=False,

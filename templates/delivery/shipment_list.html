@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Shipments - Aaramba{% endblock %}
+
+{% block content %}
+<div class="w-full px-6 py-6">
+    <!-- HEADER -->
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-zinc-900">Shipments</h1>
+        <!-- SEARCH -->
+    <form method="get" class="mb-4 flex gap-2">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search }}"
+                    placeholder="Search shipment, order or seller..."
+                    class="w-64 rounded-md border-zinc-300 text-sm px-3 py-2 focus:ring-zinc-900 focus:border-zinc-900"
+                />
+                <button
+                    type="submit"
+                    class="px-4 py-2 text-sm rounded bg-zinc-900 text-white hover:bg-zinc-800">
+                    Search
+                </button>
+                {% if search %}
+                <a href="{% url 'delivery:shipment_list' %}"
+                class="px-4 py-2 text-sm rounded border hover:bg-zinc-100">
+                    Clear
+                </a>
+                {% endif %}
+            </form>
+ 
+        <a href="{% url 'delivery:dashboard' %}"
+           class="px-4 py-2 text-sm rounded bg-zinc-900 text-white hover:bg-zinc-800">
+            Back to Dashboard
+        </a>
+            
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white border rounded-xl shadow-sm overflow-hidden">
+        <table class="min-w-full text-sm">
+            <thead class="bg-zinc-50 border-b">
+         <tr class="text-left text-zinc-600">
+            <th class="px-4 py-3">Shipment</th>
+            <th class="px-4 py-3">Order</th>
+            <th class="px-4 py-3">Seller</th>
+            <th class="px-4 py-3">Total Qty</th>
+            <th class="px-4 py-3">Order Date</th>
+            <th class="px-4 py-3">Assigned Date</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+        </tr>
+            </thead>
+
+            <tbody class="divide-y">
+                {% for s in shipments %}
+                <tr class="hover:bg-zinc-50">
+                        <td class="px-4 py-3 font-medium">#{{ s.id }}</td>
+
+                        <td class="px-4 py-3 text-zinc-600">
+                            #{{ s.order.id }}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            {{ s.seller.business_name }}
+                        </td>
+
+                        <!-- TOTAL QTY -->
+                        <td class="px-4 py-3 text-center">
+                            {{ s.total_qty|default:"—" }}
+                        </td>
+
+                        <!-- ORDER DATE -->
+                        <td class="px-4 py-3 text-zinc-500">
+                            {{ s.order.created_at|date:"M d, Y" }}
+                        </td>
+
+                        <!-- ASSIGNED DATE (FUTURE FIELD SAFE) -->
+                        <td class="px-4 py-3 text-zinc-400 italic">
+                            {% if s.assigned_at %}
+                                {{ s.assigned_at|date:"M d, Y" }}
+                            {% else %}
+                                Not assigned
+                            {% endif %}
+                        </td>
+
+                        <!-- STATUS -->
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium
+                                {% if s.status == 'DELIVERED' %}bg-green-100 text-green-700
+                                {% elif s.status == 'OUT_FOR_DELIVERY' %}bg-blue-100 text-blue-700
+                                {% elif s.status == 'SHIPPED' %}bg-indigo-100 text-indigo-700
+                                {% else %}bg-yellow-100 text-yellow-700{% endif %}
+                            ">
+                                {{ s.get_status_display }}
+                            </span>
+                        </td>
+
+                        <!-- ACTIONS -->
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{% url 'delivery:shipment_detail' s.id %}"
+                                class="text-xs px-3 py-1 rounded border hover:bg-zinc-100">
+                                    View
+                                </a>
+
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="shipment_id" value="{{ s.id }}">
+
+                                    {% if s.status == 'READY' %}
+                                    <button name="action" value="mark_shipped"
+                                            class="text-xs px-3 py-1 rounded bg-zinc-900 text-white">
+                                        Mark Shipped
+                                    </button>
+                                    {% elif s.status == 'SHIPPED' %}
+                                    <button name="action" value="mark_out"
+                                            class="text-xs px-3 py-1 rounded bg-blue-600 text-white">
+                                        Out for Delivery
+                                    </button>
+                                    {% elif s.status == 'OUT_FOR_DELIVERY' %}
+                                    <button name="action" value="mark_delivered"
+                                            class="text-xs px-3 py-1 rounded bg-green-600 text-white">
+                                        Delivered
+                                    </button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    {% if shipments.has_other_pages %}
+    <div class="flex justify-between items-center mt-6 text-sm">
+        <div class="text-zinc-600">
+            Page {{ shipments.number }} of {{ shipments.paginator.num_pages }}
+        </div>
+
+        <div class="flex gap-2">
+            {% if shipments.has_previous %}
+            <a href="?page={{ shipments.previous_page_number }}"
+               class="px-3 py-1 border rounded hover:bg-zinc-100">
+                Previous
+            </a>
+            {% endif %}
+
+            {% if shipments.has_next %}
+            <a href="?page={{ shipments.next_page_number }}"
+               class="px-3 py-1 border rounded hover:bg-zinc-100">
+                Next
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

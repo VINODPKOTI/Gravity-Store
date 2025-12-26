@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Shipment History - Aaramba{% endblock %}
+
+{% block content %}
+<div class="w-full px-6 py-6">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-zinc-900">
+            Shipment History
+        </h1>
+        <a href="{% url 'delivery:dashboard' %}"
+           class="px-4 py-2 text-sm rounded bg-zinc-900 text-white hover:bg-zinc-800">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white border rounded-xl shadow-sm overflow-hidden">
+        <table class="min-w-full text-sm">
+            <thead class="bg-zinc-50 border-b">
+                <tr class="text-left text-zinc-600">
+                    <th class="px-6 py-4">Shipment</th>
+                    <th class="px-6 py-4">Order</th>
+                    <th class="px-6 py-4">Seller</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Updated</th>
+                    <th class="px-6 py-4 text-right">View</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y">
+                {% for s in shipments %}
+                <tr class="hover:bg-zinc-50">
+
+                    <td class="px-6 py-4 font-medium">
+                        #{{ s.id }}
+                    </td>
+
+                    <td class="px-6 py-4 text-zinc-600">
+                        #{{ s.order.id }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                        {{ s.seller.business_name }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium
+                            {% if s.status == 'DELIVERED' %}
+                                bg-green-100 text-green-700
+                            {% else %}
+                                bg-red-100 text-red-700
+                            {% endif %}
+                        ">
+                            {{ s.get_status_display }}
+                        </span>
+                    </td>
+
+                    <td class="px-6 py-4 text-zinc-500">
+                        {{ s.updated_at|date:"M d, Y H:i" }}
+                    </td>
+
+                    <td class="px-6 py-4 text-right">
+                        <button
+                            onclick="openModal('{{ s.id }}', '{{ s.order.id }}', '{{ s.seller.business_name }}', '{{ s.get_status_display }}', '{{ s.updated_at|date:'M d, Y H:i' }}')"
+                            class="text-xs px-3 py-1 border rounded hover:bg-zinc-100">
+                            View
+                        </button>
+                    </td>
+
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-zinc-500">
+                        No shipment history found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    {% if shipments.has_other_pages %}
+    <div class="flex justify-between items-center mt-6 text-sm">
+        <span class="text-zinc-600">
+            Page {{ shipments.number }} of {{ shipments.paginator.num_pages }}
+        </span>
+
+        <div class="flex gap-2">
+            {% if shipments.has_previous %}
+            <a href="?page={{ shipments.previous_page_number }}"
+               class="px-3 py-1 border rounded hover:bg-zinc-100">
+                Previous
+            </a>
+            {% endif %}
+            {% if shipments.has_next %}
+            <a href="?page={{ shipments.next_page_number }}"
+               class="px-3 py-1 border rounded hover:bg-zinc-100">
+                Next
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- MODAL -->
+<div id="historyModal"
+     class="fixed inset-0 hidden bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+
+        <h2 class="text-lg font-bold mb-4">
+            Shipment Details
+        </h2>
+
+        <div class="space-y-2 text-sm">
+            <p><strong>Shipment:</strong> <span id="mShipment"></span></p>
+            <p><strong>Order:</strong> <span id="mOrder"></span></p>
+            <p><strong>Seller:</strong> <span id="mSeller"></span></p>
+            <p><strong>Status:</strong> <span id="mStatus"></span></p>
+            <p><strong>Updated:</strong> <span id="mUpdated"></span></p>
+        </div>
+
+        <div class="mt-6 text-right">
+            <button onclick="closeModal()"
+                    class="px-4 py-2 text-sm rounded bg-zinc-900 text-white hover:bg-zinc-800">
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function openModal(id, order, seller, status, updated) {
+    document.getElementById("mShipment").innerText = "#" + id;
+    document.getElementById("mOrder").innerText = "#" + order;
+    document.getElementById("mSeller").innerText = seller;
+    document.getElementById("mStatus").innerText = status;
+    document.getElementById("mUpdated").innerText = updated;
+    document.getElementById("historyModal").classList.remove("hidden");
+}
+
+function closeModal() {
+    document.getElementById("historyModal").classList.add("hidden");
+}
+</script>
+
+{% endblock %}
