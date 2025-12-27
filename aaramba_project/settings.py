@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'payments',
     'promotions',
     'wishlist',
+
 ]
 
 MIDDLEWARE = [
@@ -153,6 +154,6 @@ AUTHENTICATION_BACKENDS = [
 RAZORPAY_KEY_ID = 'rzp_test_dummy123456789'
 RAZORPAY_KEY_SECRET = 'dummy_secret_key_for_testing'
 
-
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 

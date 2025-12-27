@@ -77,7 +77,7 @@
             <a href="{% url 'core:home' %}" class="logo flex items-center gap-1 md:gap-2 flex-shrink-0">
                 {% if site_settings.logo %}
                 <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}"
-                    class="h-8 md:h-9 w-auto object-contain">
+                     class="w-24 sm:w-12 md:w-44 lg:w-52 h-auto object-contain">
                 {% else %}
                 <span class="text-lg md:text-xl font-bold tracking-tighter">Aaramba</span>
                 {% endif %}
@@ -310,10 +310,10 @@
 
 
     <!-- Main Content -->
-<main class="flex-1 pb-16 md:pb-0">
+        <main class="flex-1 pb-16 md:pb-0">
         {% block content %}
         {% endblock %}
-    </main>
+         </main>
 
     <!-- Footer -->
     <footer class="main-footer border-t border-zinc-200 bg-white py-8 mt-auto">

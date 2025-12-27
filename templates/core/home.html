@@ -1,47 +1,70 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Welcome to Aaramba{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<!-- Hero Section -->
+
 {% if banners %}
+<!-- HERO / BANNER -->
 <section class="relative bg-white border-b border-zinc-100 overflow-hidden">
-    <div class="relative w-full h-[500px]">
+
+    <!-- Responsive Height -->
+    <div class="relative w-full h-[260px] sm:h-[320px] md:h-[420px] lg:h-[520px]">
+
         {% for banner in banners %}
-        <div class="absolute inset-0 transition-opacity duration-1000 {% if forloop.first %}opacity-100 z-10{% else %}opacity-0 z-0{% endif %} banner-slide"
-            style="background-image: url('{{ banner.image.url }}'); background-size: cover; background-position: center;">
-            <div class="absolute inset-0 bg-black/40"></div>
+        <div
+            class="absolute inset-0 transition-opacity duration-1000
+                   {% if forloop.first %}opacity-100 z-10{% else %}opacity-0 z-0{% endif %}
+                   banner-slide"
+            style="
+                background-image: url('{{ banner.image.url }}');
+                background-size: cover;
+                background-position: center top;
+            ">
+
+            <!-- Dark overlay -->
+            <div class="absolute inset-0 bg-black/30"></div>
+
+            <!-- Bottom gradient for text -->
+            <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 to-transparent"></div>
+
+            <!-- Content -->
             <div class="container mx-auto px-4 h-full flex items-center justify-center text-center relative z-20">
-                <div class="space-y-6 max-w-3xl">
-                    <h1 class="text-4xl font-extrabold tracking-tight text-white lg:text-6xl drop-shadow-lg">
+                <div class="space-y-4 max-w-3xl">
+
+                    <h1 class="text-2xl sm:text-3xl md:text-5xl lg:text-6xl
+                               font-extrabold tracking-tight text-white drop-shadow-lg">
                         {{ banner.title }}
-                        <br class="hidden md:block" />
-                        <span class="text-white text-2xl md:text-4xl font-normal block mt-2 drop-shadow-md 0">
-                            {{ banner.subtitle }}
-                        </span>
                     </h1>
+
+                    {% if banner.subtitle %}
+                    <p class="text-white text-sm sm:text-lg md:text-2xl drop-shadow-md">
+                        {{ banner.subtitle }}
+                    </p>
+                    {% endif %}
+
                     {% if banner.link %}
-                    <div class="flex justify-center pt-4">
-                        <a href="{{ banner.link }}"
-                            class="inline-flex h-12 items-center justify-center rounded-md bg-white px-8 text-sm font-medium text-zinc-900 shadow transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white">
-                            Explore Now
-                        </a>
-                    </div>
+                    <a href="{{ banner.link }}"
+                       class="inline-flex h-10 sm:h-12 px-6 sm:px-8
+                              rounded-md bg-white text-sm font-semibold
+                              text-zinc-900 hover:bg-zinc-100 transition">
+                        Explore Now
+                    </a>
                     {% elif banner.product %}
-                    <div class="flex justify-center pt-4">
-                        <a href="{% url 'products:product_detail' banner.product.pk %}"
-                            class="inline-flex h-12 items-center justify-center rounded-md bg-white px-8 text-sm font-medium text-zinc-900 shadow transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white">
-                            Shop Now
-                        </a>
-                    </div>
+                    <a href="{% url 'products:product_detail' banner.product.pk %}"
+                       class="inline-flex h-10 sm:h-12 px-6 sm:px-8
+                              rounded-md bg-white text-sm font-semibold
+                              text-zinc-900 hover:bg-zinc-100 transition">
+                        Shop Now
+                    </a>
                     {% elif banner.category %}
-                    <div class="flex justify-center pt-4">
-                        <a href="{% url 'products:product_list_by_category' banner.category.slug %}"
-                            class="inline-flex h-12 items-center justify-center rounded-md bg-white px-8 text-sm font-medium text-zinc-900 shadow transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white">
-                            Browse Category
-                        </a>
-                    </div>
+                    <a href="{% url 'products:product_list_by_category' banner.category.slug %}"
+                       class="inline-flex h-10 sm:h-12 px-6 sm:px-8
+                              rounded-md bg-white text-sm font-semibold
+                              text-zinc-900 hover:bg-zinc-100 transition">
+                        Browse Category
+                    </a>
                     {% endif %}
                 </div>
             </div>
@@ -50,129 +73,110 @@
     </div>
 
     {% if banners|length > 1 %}
-    <!-- Previous Button -->
-    <button onclick="prevBanner()"
-        class="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-zinc-900 rounded-full p-3 shadow-lg transition-all hover:scale-110">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-    </button>
-
-    <!-- Next Button -->
-    <button onclick="nextBanner()"
-        class="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-zinc-900 rounded-full p-3 shadow-lg transition-all hover:scale-110">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-    </button>
-
-    <!-- Dot Indicators -->
-    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-30">
+    <!-- Dots -->
+    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-3 z-30">
         {% for banner in banners %}
         <button
-            class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors banner-dot {% if forloop.first %}bg-white{% endif %}"
-            onclick="showBanner({{ forloop.counter0 }})"></button>
+            onclick="showBanner({{ forloop.counter0 }})"
+            class="w-2.5 h-2.5 rounded-full bg-white/40
+                   transition-all duration-300
+                   banner-dot {% if forloop.first %}bg-white scale-125{% endif %}">
+        </button>
         {% endfor %}
     </div>
     {% endif %}
 </section>
 
+<!-- Banner Script -->
 <script>
     let currentBanner = 0;
     const banners = document.querySelectorAll('.banner-slide');
     const dots = document.querySelectorAll('.banner-dot');
-    const totalBanners = banners.length;
+    const total = banners.length;
 
     function showBanner(index) {
-        banners.forEach(banner => {
-            banner.classList.remove('opacity-100', 'z-10');
-            banner.classList.add('opacity-0', 'z-0');
+        banners.forEach(b => {
+            b.classList.remove('opacity-100', 'z-10');
+            b.classList.add('opacity-0', 'z-0');
         });
-        dots.forEach(dot => dot.classList.remove('bg-white'));
+        dots.forEach(d => d.classList.remove('bg-white', 'scale-125'));
 
-        banners[index].classList.remove('opacity-0', 'z-0');
         banners[index].classList.add('opacity-100', 'z-10');
-        if (dots[index]) dots[index].classList.add('bg-white');
+        banners[index].classList.remove('opacity-0', 'z-0');
+        dots[index].classList.add('bg-white', 'scale-125');
+
         currentBanner = index;
     }
 
-    function nextBanner() {
-        let next = (currentBanner + 1) % totalBanners;
-        showBanner(next);
-    }
-
-    function prevBanner() {
-        let prev = (currentBanner - 1 + totalBanners) % totalBanners;
-        showBanner(prev);
-    }
-
-    if (totalBanners > 1) {
+    if (total > 1) {
         setInterval(() => {
-            nextBanner();
+            showBanner((currentBanner + 1) % total);
         }, 5000);
     }
 </script>
+
 {% else %}
-<!-- Fallback Hero if no banners -->
+<!-- FALLBACK HERO -->
 <section class="py-20 md:py-32 bg-white border-b border-zinc-100">
     <div class="container mx-auto px-4 text-center space-y-6">
-        <h1 class="text-4xl font-extrabold tracking-tight text-zinc-900 lg:text-6xl">
-            Everything you need, <br class="hidden md:block" />
-            <span class="text-zinc-500">delivered to your door.</span>
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-zinc-900">
+            Everything you need,
+            <span class="block text-zinc-500">delivered to your door.</span>
         </h1>
-        <p class="text-lg text-zinc-600 max-w-2xl mx-auto leading-relaxed">
-            Discover a premium shopping experience with Aaramba. From electronics to fashion, we have it all with
-            lightning fast delivery.
+        <p class="text-base md:text-lg text-zinc-600 max-w-2xl mx-auto">
+            Discover a premium shopping experience with Aaramba.
         </p>
-        <div class="flex justify-center gap-4 pt-4">
-            <a href="{% url 'products:product_list' %}"
-                class="inline-flex h-12 items-center justify-center rounded-md bg-zinc-900 px-8 text-sm font-medium text-zinc-50 shadow transition-colors hover:bg-zinc-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
-                Start Shopping
-            </a>
-        </div>
+        <a href="{% url 'products:product_list' %}"
+           class="inline-flex h-12 items-center justify-center rounded-md
+                  bg-zinc-900 px-8 text-sm font-semibold text-white
+                  hover:bg-zinc-800 transition">
+            Start Shopping
+        </a>
     </div>
 </section>
 {% endif %}
 
-<!-- Featured Categories -->
-<section class="py-16 container mx-auto px-4">
+<!-- FEATURED CATEGORIES -->
+<section class="py-14 container mx-auto px-4">
     <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-bold tracking-tight text-zinc-900">Shop by Category</h2>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-zinc-900">
+            Shop by Category
+        </h2>
         <a href="{% url 'products:product_list' %}"
-            class="text-sm font-medium text-zinc-600 hover:text-zinc-900 flex items-center gap-1">
-            View all <span aria-hidden="true">&rarr;</span>
+           class="text-sm font-medium text-zinc-600 hover:text-zinc-900">
+            View all →
         </a>
     </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {% for category in categories %}
-        <a href="{% url 'products:product_list_by_category' category.slug %}" class="group block">
+        <a href="{% url 'products:product_list_by_category' category.slug %}"
+           class="group block">
             <div
-                class="rounded-xl border border-zinc-200 bg-white shadow-sm transition-all hover:shadow-md hover:border-zinc-300 aspect-[4/3] flex items-center justify-center overflow-hidden">
+                class="aspect-[4/3] rounded-xl border border-zinc-200 bg-white
+                       shadow-sm hover:shadow-md transition overflow-hidden">
                 {% if category.image %}
-                <img src="{{ category.image.url }}" alt="{{ category.name }}"
-                    class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
+                <img src="{{ category.image.url }}"
+                     alt="{{ category.name }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                 {% else %}
-                <!-- Placeholder Icon for categories without images -->
-                <div class="bg-zinc-50 w-full h-full flex items-center justify-center">
+                <div class="w-full h-full flex items-center justify-center bg-zinc-50">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
                         class="text-zinc-400 group-hover:text-zinc-900 transition-colors">
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                         <line x1="3" y1="9" x2="21" y2="9" />
                         <line x1="9" y1="21" x2="9" y2="9" />
-                    </svg>
-                </div>
+                    </svg>                </div>
                 {% endif %}
             </div>
-            <h3 class="mt-4 text-lg font-semibold text-zinc-900 group-hover:text-zinc-700">{{ category.name }}</h3>
+            <h3 class="mt-3 text-base font-semibold text-zinc-900">
+                {{ category.name }}
+            </h3>
             <p class="text-sm text-zinc-500">Explore {{ category.name }}</p>
         </a>
-        {% empty %}
-        <p class="col-span-full text-center text-zinc-500">No categories found.</p>
         {% endfor %}
     </div>
 </section>
+
 {% endblock %}

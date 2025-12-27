@@ -1,16 +1,20 @@
 from django.contrib import admin
 from .models import Category, Product, SKU
+from mptt.admin import DraggableMPTTAdmin
+
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'parent')
+class CategoryAdmin(DraggableMPTTAdmin):
+    list_display = ('tree_actions', 'indented_title', 'is_active')
+    list_display_links = ('indented_title',)
+    list_filter = ('is_active',)
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'seller', 'base_price', 'category', 'created_at')
-    list_filter = ('category', 'seller', 'created_at')
+    list_display = ('title', 'seller', 'category', 'base_price', 'is_active', 'created_at')
+    list_filter = ('is_active', 'category', 'seller')
     search_fields = ('title', 'description')
     readonly_fields = ('created_at',)
 

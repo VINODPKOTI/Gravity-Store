@@ -8,11 +8,13 @@ import traceback
 
 def product_list(request, category_slug=None):
     category = None
-    categories = Category.objects.all()
-    products = Product.objects.filter(is_active=True)
-
+    categories = Category.objects.filter(is_active=True)
+    products = Product.objects.filter(
+        is_active=True,
+        category__is_active=True
+    )
     if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
+        category = get_object_or_404(Category, slug=category_slug,is_active=True)
         products = products.filter(category__in=category.get_descendants(include_self=True))
 
     search_query = request.GET.get('q')
@@ -43,7 +45,7 @@ def product_list(request, category_slug=None):
     })
 
 def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk, is_active=True)
+    product = get_object_or_404(Product, pk=pk, is_active=True,category__is_active=True)
     skus = product.skus.filter(stock__gt=0)
 
     # 🔹 Convert SKU attributes to JSON for the template
@@ -80,7 +82,8 @@ def product_search_suggestions(request):
 
     products = Product.objects.filter(
         Q(title__icontains=query) | Q(description__icontains=query),
-        is_active=True
+        is_active=True,
+        category__is_active=True
     )[:5]
 
     results = []
