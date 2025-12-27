@@ -84,11 +84,14 @@
             </a>
 
             <!-- Search Bar (Visible on Mobile & Desktop) -->
-            <div class="flex flex-1 max-w-sm md:max-w-md mx-2 md:mx-4 relative order-2 md:order-none">
+            <div class="flex flex-1 max-w-md md:max-w-lg mx-4 relative order-2 md:order-none justify-center">
                 <form action="{% url 'products:product_list' %}" method="get" class="w-full relative">
-                    <input type="text" name="q" id="search-input" placeholder="Search for products..."
-                        class="w-full h-8 pl-4 pr-10 rounded-full border border-zinc-200 bg-zinc-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        autocomplete="off">
+                <input type="text" name="q" id="search-input" placeholder="Search..."
+                    class="w-full h-10 pl-5 pr-12 rounded-full border border-zinc-200 bg-white text-base
+                        shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)]
+                        focus:shadow-[inset_0_2px_4px_rgba(99,102,241,0.25)]
+                        focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    autocomplete="off">
                     <button type="submit"
                         class="absolute right-0 top-0 h-8 w-8 flex items-center justify-center text-zinc-400 hover:text-primary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -106,7 +109,7 @@
             </div>
 
             <!-- Nav Actions -->
-            <div class="flex items-center gap-2 md:gap-4">
+<div class="flex items-center gap-2 md:gap-4 order-3 md:order-none ml-auto md:ml-0">
                 <!-- Desktop Nav Links -->
                 <nav class="nav-links hidden md:flex items-center gap-6">
                     <a href="{% url 'core:home' %}"
@@ -148,7 +151,8 @@
 
                 <!-- Wishlist Icon -->
                 <a href="{% url 'wishlist:wishlist' %}"
-                    class="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-zinc-100 transition-colors">
+                    class="relative hidden md:inline-flex items-center justify-center w-10 h-10
+                rounded-full hover:bg-zinc-100 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                         class="text-zinc-900">
@@ -163,7 +167,8 @@
 
                 <!-- Cart Icon -->
                 <a href="{% url 'orders:view_cart' %}"
-                    class="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-zinc-100 transition-colors">
+                     class="relative hidden md:inline-flex items-center justify-center w-10 h-10
+          rounded-full hover:bg-zinc-100 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                         class="text-zinc-900">
@@ -191,64 +196,121 @@
     </header>
 
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu"
-        class="fixed inset-0 z-[60] bg-white transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex flex-col">
-        <div class="p-4 border-b border-zinc-100 flex justify-between items-center">
-            <span class="text-xl font-bold">Menu</span>
-            <button id="close-menu-btn" class="p-2 text-zinc-600 hover:text-zinc-900">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-        <div class="p-4 flex-1 overflow-y-auto">
+   <div id="mobile-menu"
+                class="fixed inset-0 z-[60] bg-white transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex flex-col">
 
-            <!-- Mobile Nav Links -->
-            <nav class="flex flex-col gap-4">
-                <a href="{% url 'core:home' %}" class="text-lg font-medium text-zinc-900">Home</a>
-                <a href="{% url 'products:product_list' %}" class="text-lg font-medium text-zinc-900">Shop</a>
+                <!-- Mobile Menu Header -->
+                <div class="h-14 px-4 border-b border-zinc-100 flex items-center justify-between">
 
-                {% if user.is_authenticated %}
-                <div class="border-t border-zinc-100 my-2 pt-4">
-                    <p class="text-sm text-zinc-500 mb-2">Hi, {{ user.username }}</p>
-                    {% if user.role == 'SELLER' %}
-                    <a href="{% url 'sellers:dashboard' %}" class="block py-2 text-lg font-medium text-zinc-900">Seller
-                        Dashboard</a>
-                    {% elif user.role == 'DELIVERY' %}
-                    <a href="{% url 'delivery:dashboard' %}"
-                        class="block py-2 text-lg font-medium text-zinc-900">Delivery Dashboard</a>
-                    {% elif user.role == 'ADMIN' %}
-                    <a href="{% url 'core:admin_dashboard' %}"
-                        class="block py-2 text-lg font-medium text-zinc-900">Admin</a>
-                    {% endif %}
-                    <a href="{% url 'orders:order_history' %}"
-                        class="block py-2 text-lg font-medium text-zinc-900">Orders</a>
-                    <a href="{% url 'accounts:profile' %}"
-                        class="block py-2 text-lg font-medium text-zinc-900">Profile</a>
-                    <a href="{% url 'wishlist:wishlist' %}"
-                        class="block py-2 text-lg font-medium text-zinc-900">Wishlist</a>
-                    <form action="{% url 'accounts:logout' %}" method="post" class="mt-2">
-                        {% csrf_token %}
-                        <button type="submit" class="text-red-600 font-medium w-full text-left">Logout</button>
-                    </form>
+                    <!-- Logo (Left) -->
+                    <a href="{% url 'core:home' %}" class="flex items-center gap-2">
+                        {% if site_settings.logo %}
+                        <img src="{{ site_settings.logo.url }}"
+                            alt="{{ site_settings.site_name }}"
+                            class="h-8 w-auto object-contain">
+                        {% else %}
+                        <span class="text-lg font-bold tracking-tight">Aaramba</span>
+                        {% endif %}
+                    </a>
+
+                    
+
+                    <!-- Right Icons -->
+                    <div class="flex items-center gap-2">
+
+                        <!-- Wishlist -->
+                        <a href="{% url 'wishlist:wishlist' %}"
+                        class="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-zinc-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+
+                            {% if global_wishlist_count > 0 %}
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
+                                {{ global_wishlist_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+
+                        <!-- Cart -->
+                        <a href="{% url 'orders:view_cart' %}"
+                        class="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-zinc-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="8" cy="21" r="1"/>
+                                <circle cx="19" cy="21" r="1"/>
+                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                            </svg>
+
+                            {% if global_cart_count > 0 %}
+                            <span class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
+                                {{ global_cart_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+
+                        <!-- Close Button -->
+                        <button id="close-menu-btn"
+                                class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+
+                    </div>
                 </div>
-                {% else %}
-                <div class="border-t border-zinc-100 my-2 pt-4 flex flex-col gap-3">
-                    <a href="{% url 'accounts:login' %}"
-                        class="block w-full text-center py-2 rounded-md border border-zinc-200 font-medium hover:bg-zinc-50">Login</a>
-                    <a href="{% url 'accounts:register' %}"
-                        class="block w-full text-center py-2 rounded-md bg-primary text-white font-medium hover:bg-primary/90">Get
-                        Started</a>
+
+                <!-- Menu Content -->
+                <div class="p-4 flex-1 overflow-y-auto">
+                    <nav class="flex flex-col gap-4">
+
+                        <a href="{% url 'core:home' %}" class="text-lg font-medium text-zinc-900">Home</a>
+                        <a href="{% url 'products:product_list' %}" class="text-lg font-medium text-zinc-900">Shop</a>
+
+                        {% if user.is_authenticated %}
+                        <div class="border-t border-zinc-100 pt-4">
+                            <p class="text-sm text-zinc-500 mb-3">Hi, {{ user.username|capfirst }}</p>
+
+                            {% if user.role == 'SELLER' %}
+                            <a href="{% url 'sellers:dashboard' %}" class="block py-2 text-lg font-medium">Seller Dashboard</a>
+                            {% elif user.role == 'DELIVERY' %}
+                            <a href="{% url 'delivery:dashboard' %}" class="block py-2 text-lg font-medium">Delivery Dashboard</a>
+                            {% elif user.role == 'ADMIN' %}
+                            <a href="{% url 'core:admin_dashboard' %}" class="block py-2 text-lg font-medium">Admin</a>
+                            {% endif %}
+
+                            <a href="{% url 'orders:order_history' %}" class="block py-2 text-lg font-medium">Orders</a>
+                            <a href="{% url 'accounts:profile' %}" class="block py-2 text-lg font-medium">Profile</a>
+                            <a href="{% url 'wishlist:wishlist' %}" class="block py-2 text-lg font-medium">Wishlist</a>
+
+                            <form action="{% url 'accounts:logout' %}" method="post" class="mt-4">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 font-medium w-full text-left">Logout</button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <div class="border-t border-zinc-100 pt-4 flex flex-col gap-3">
+                            <a href="{% url 'accounts:login' %}"
+                            class="block w-full text-center py-2 rounded-md border border-zinc-200 font-medium">
+                                Login
+                            </a>
+                            <a href="{% url 'accounts:register' %}"
+                            class="block w-full text-center py-2 rounded-md bg-primary text-white font-medium">
+                                Get Started
+                            </a>
+                        </div>
+                        {% endif %}
+
+                    </nav>
                 </div>
-                {% endif %}
-            </nav>
-        </div>
-    </div>
+            </div>
+
 
     <!-- Main Content -->
-    <main class="flex-1">
+<main class="flex-1 pb-16 md:pb-0">
         {% block content %}
         {% endblock %}
     </main>
@@ -264,6 +326,105 @@
             </div>
         </div>
     </footer>
+<!-- Mobile Bottom Navigation (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 right-0 z-[60] bg-white border-t border-zinc-200 md:hidden">
+    <div class="flex justify-around items-center h-14">
+
+        <!-- Home -->
+        <a href="{% url 'core:home' %}"
+           class="flex flex-col items-center text-[11px] text-zinc-600 hover:text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                width="22" height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10v10a1 1 0 0 0 1 1h4v-7h4v7h4a1 1 0 0 0 1-1V10" />
+            </svg>
+
+            Home
+        </a>
+
+        <!-- Wishlist -->
+        <a href="{% url 'wishlist:wishlist' %}"
+           class="relative flex flex-col items-center text-[11px] text-zinc-600 hover:text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg"
+            width="22" height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23
+                l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+
+            Wishlist
+            {% if global_wishlist_count > 0 %}
+            <span class="absolute -top-1 right-3 bg-red-500 text-white text-[10px] h-4 w-4 rounded-full flex items-center justify-center">
+                {{ global_wishlist_count }}
+            </span>
+            {% endif %}
+        </a>
+
+        <!-- Cart -->
+        <a href="{% url 'orders:view_cart' %}"
+           class="relative flex flex-col items-center text-[11px] text-zinc-600 hover:text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        width="22" height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+                    <circle cx="8" cy="21" r="1" />
+                    <circle cx="19" cy="21" r="1" />
+                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78
+                            a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                    </svg>
+
+            Cart
+            {% if global_cart_count > 0 %}
+            <span class="absolute -top-1 right-3 bg-primary text-white text-[10px] h-4 w-4 rounded-full flex items-center justify-center">
+                {{ global_cart_count }}
+            </span>
+            {% endif %}
+        </a>
+
+        {% if user.is_authenticated %}
+        <!-- Orders -->
+        <a href="{% url 'orders:order_history' %}"
+           class="flex flex-col items-center text-[11px] text-zinc-600 hover:text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                 fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+            </svg>
+            Orders
+        </a>
+        {% else %}
+        <!-- Login -->
+        <a href="{% url 'accounts:login' %}"
+           class="flex flex-col items-center text-[11px] text-zinc-600 hover:text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                 fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            Login
+        </a>
+        {% endif %}
+
+    </div>
+</nav>
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"></div>

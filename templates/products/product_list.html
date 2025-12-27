@@ -7,44 +7,55 @@
 {% block content %}
 <div class="container mx-auto px-4 py-4 md:py-8 flex flex-col md:flex-row gap-6">
     <!-- Sidebar -->
-    <aside class="w-full md:w-60 flex-shrink-0">
-        <div class="bg-white border border-zinc-200 rounded-xl p-4 md:p-6 shadow-sm md:sticky md:top-20">
-            <h3 class="font-bold text-base mb-4 text-zinc-900 border-b border-zinc-100 pb-2">Categories</h3>
-            <ul class="space-y-1.5">
-                <li>
-                    <a href="{% url 'products:product_list' %}"
-                        class="block text-sm {% if not category %}font-bold text-zinc-900{% else %}text-zinc-600 hover:text-zinc-900{% endif %} transition-colors">
-                        All Products
-                    </a>
-                </li>
-                {% for cat in categories %}
-                {% if cat.is_root_node %}
-                <li class="space-y-1">
-                    <a href="{% url 'products:product_list_by_category' cat.slug %}"
-                        class="block text-sm {% if category and category.id == cat.id %}font-bold text-zinc-900{% else %}text-zinc-600 hover:text-zinc-900{% endif %} transition-colors">
-                        {{ cat.name }}
-                    </a>
-                    {% if not cat.is_leaf_node %}
-                    <ul class="pl-3 space-y-1 border-l border-zinc-100 ml-1">
-                        {% for child in cat.get_children %}
-                        <li>
-                            <a href="{% url 'products:product_list_by_category' child.slug %}"
-                                class="block text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
-                                {{ child.name }}
-                            </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </li>
+<!-- Sidebar (Desktop only) -->
+<aside class="hidden md:block w-60 flex-shrink-0">
+    <div class="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm sticky top-20">
+        <h3 class="font-bold text-base mb-4 text-zinc-900 border-b border-zinc-100 pb-2">
+            Categories
+        </h3>
+        <ul class="space-y-1.5">
+            <li>
+                <a href="{% url 'products:product_list' %}"
+                   class="block text-sm {% if not category %}font-bold text-zinc-900{% else %}text-zinc-600 hover:text-zinc-900{% endif %}">
+                    All Products
+                </a>
+            </li>
+
+            {% for cat in categories %}
+            {% if cat.is_root_node %}
+            <li class="space-y-1">
+                <a href="{% url 'products:product_list_by_category' cat.slug %}"
+                   class="block text-sm {% if category and category.id == cat.id %}font-bold text-zinc-900{% else %}text-zinc-600 hover:text-zinc-900{% endif %}">
+                    {{ cat.name }}
+                </a>
+
+                {% if not cat.is_leaf_node %}
+                <ul class="pl-3 space-y-1 border-l border-zinc-100 ml-1">
+                    {% for child in cat.get_children %}
+                    <li>
+                        <a href="{% url 'products:product_list_by_category' child.slug %}"
+                           class="block text-xs text-zinc-500 hover:text-zinc-900">
+                            {{ child.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
                 {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-    </aside>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</aside>
 
     <!-- Product Grid -->
     <div class="flex-grow">
+        <button id="open-category"
+        class="md:hidden mb-4 w-full flex items-center justify-center gap-2
+               h-10 rounded-lg border border-zinc-200 bg-white
+               text-sm font-semibold text-zinc-700">
+    Categories
+</button>
         <div class="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
                 {% if search_query %}
@@ -140,4 +151,64 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Mobile Category Drawer -->
+<div id="mobile-category"
+     class="fixed inset-0 z-[70] bg-black/30 hidden md:hidden">
+
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl
+                max-h-[80vh] overflow-y-auto p-4">
+
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-base">Categories</h3>
+            <button id="close-category"
+                    class="text-zinc-500 text-sm font-bold">Close</button>
+        </div>
+
+        <ul class="space-y-2">
+            <li>
+                <a href="{% url 'products:product_list' %}"
+                   class="block py-2 text-sm font-semibold text-zinc-900">
+                    All Products
+                </a>
+            </li>
+
+            {% for cat in categories %}
+            {% if cat.is_root_node %}
+            <li>
+                <a href="{% url 'products:product_list_by_category' cat.slug %}"
+                   class="block py-2 text-sm font-medium text-zinc-700">
+                    {{ cat.name }}
+                </a>
+
+                {% if not cat.is_leaf_node %}
+                <ul class="pl-4 space-y-1 border-l border-zinc-100">
+                    {% for child in cat.get_children %}
+                    <li>
+                        <a href="{% url 'products:product_list_by_category' child.slug %}"
+                           class="block py-1 text-xs text-zinc-500">
+                            {{ child.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<script>
+document.getElementById('open-category')?.addEventListener('click', () => {
+    document.getElementById('mobile-category').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+});
+
+document.getElementById('close-category')?.addEventListener('click', () => {
+    document.getElementById('mobile-category').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+});
+</script>
+
 {% endblock %}
